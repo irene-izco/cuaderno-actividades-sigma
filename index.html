@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registro de actividades en SIGMA · v0</title>
+<style>
+:root{--bg:#e9e9e9;--card:#fff;--tx:#222;--mut:#6a6a6a;--br:#d6d6d6;--ac:#d03a12;--acd:#a82c0b;--ok:#2e7d32;--wa:#b45309;--er:#b42318;--ink:#2b2b2b;--gr:#efefef}
+*{box-sizing:border-box}input[type=radio],input[type=checkbox]{accent-color:var(--ac)}body{margin:0;font:14.5px/1.45 "Open Sans","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--ink);color:#fff;padding:12px 24px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+header h1{margin:0;font-size:20px;letter-spacing:.2px;font-weight:600}header h1 small{color:#bbb}
+header p{margin:0;color:#bdbdbd;font-size:12.5px;flex:1 1 360px}
+nav{display:flex;gap:2px;background:var(--ink);border-top:1px solid #444;padding:0 20px;position:sticky;top:0;z-index:5}
+nav button{border:0;background:none;padding:11px 16px;font:inherit;cursor:pointer;color:#c9c9c9;border-bottom:3px solid transparent}
+nav button.on{color:#fff;background:var(--ac);border-color:var(--ac);font-weight:600}
+nav button:hover:not(.on){color:#fff;background:#3a3a3a}
+main{max-width:1050px;margin:18px auto;padding:0 14px}
+.card{background:var(--card);border:1px solid var(--br);border-radius:4px;padding:14px 18px;margin-bottom:14px}
+h2{font-size:15px;margin:-14px -18px 12px;padding:9px 18px;background:var(--ac);color:#fff;border-radius:3px 3px 0 0;font-weight:600}
+h3{font-size:14px;margin:0 0 6px}
+label{display:block;font-size:12.5px;color:var(--mut);margin:8px 0 2px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;padding:6px 8px;border:1px solid #c4c4c4;border-radius:2px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid #e8a590;border-color:var(--ac)}
+textarea{min-height:90px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:2px 14px}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:3px;padding:8px 16px;font:inherit;cursor:pointer;font-weight:600;box-shadow:0 2px 0 var(--acd)}
+button.b:hover{background:var(--acd)}
+button.b.s{background:#fff;color:var(--ac);border:1px solid var(--ac);box-shadow:none}
+button.b.s:hover{background:#fbeae5}button.b.sm{padding:3px 10px;font-size:12.5px}
+.drop{border:2px dashed #aaa;border-radius:4px;padding:26px;text-align:center;color:var(--mut);background:var(--gr)}
+.q{background:#fff8e6;border:1px solid #e9cf86;border-left:4px solid var(--ac);border-radius:3px;padding:10px 12px;margin:10px 0}
+.q b{color:var(--acd)}.hint{font-size:12.5px;color:var(--mut)}.radio label{display:inline-block;margin-right:14px;color:var(--tx);font-size:14px;font-weight:400}
+.radio input{width:auto}
+.tag{display:inline-block;padding:1px 8px;border-radius:2px;font-size:12px;background:#eee;color:#444;margin-left:6px}
+.tag.tc{background:#333;color:#fff}.tag.ok{background:#e3f1e4;color:var(--ok)}
+.dud{color:var(--wa);font-size:13.5px;margin:4px 0}.regla{color:var(--mut);font-size:12.5px;margin-top:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.bar{height:12px;background:#e2e2e2;border-radius:2px;overflow:hidden;position:relative;margin:6px 0}
+.bar i{position:absolute;left:0;top:0;bottom:0}.big{font-size:24px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:6px 8px;border-bottom:1px solid var(--br);text-align:left;vertical-align:top}
+th{background:var(--ac);color:#fff;font-weight:600;font-size:12.5px}tr:nth-child(even) td{background:#f4f4f4}.hide{display:none}
+.warn{background:#fff3f0;border:1px solid #f0b8aa;border-radius:3px;padding:8px 12px;color:var(--er);font-size:13.5px}
+/* formulario con aspecto de SIGMA */
+.sg{border:1px solid var(--br);margin-top:8px}
+.sg .r{display:grid;grid-template-columns:150px 1fr;border-bottom:1px dotted #cfcfcf;background:#fff}
+.sg .r>b{padding:6px 8px;font-size:12.5px;color:#111;background:#fff;display:flex;align-items:center}
+.sg .c{padding:4px 8px;display:flex;gap:8px;align-items:center;min-height:32px;background:#f3f3f3}
+.sg .c .v{flex:1;background:#fff;border:1px solid #d2d2d2;padding:4px 8px;min-height:26px;white-space:pre-wrap;word-break:break-word}
+.sg .c .v.gris{background:#e6e6e6;color:#777}
+.sg .c input.v{width:auto;max-width:120px}
+.sg .tri{display:grid;grid-template-columns:150px 1fr 90px 1fr 90px 90px}
+.sg .tri>b{padding:6px 8px;font-size:12.5px;display:flex;align-items:center;background:#fff}
+.sg .tri .c{border:0}.sg .r2{display:grid;grid-template-columns:150px 1fr 90px 1fr 110px 110px;border-bottom:1px dotted #cfcfcf}
+.sg .r2>b{padding:6px 8px;font-size:12.5px;display:flex;align-items:center;background:#fff}
+.sg .r2>.c{border-left:0}
+.sec{margin:12px 0 0;border:1px solid var(--br);position:relative;padding:16px 10px 8px;background:#fff}
+.sec>span.t{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#fff;padding:0 10px;font-size:12px;color:#777;font-weight:700;letter-spacing:.3px}
+.ent{display:grid;grid-template-columns:34px 190px 1fr;align-items:center;border-bottom:1px dotted #d6d6d6;padding:2px 0}
+.ent input[type=radio]{width:auto;margin:0 auto}.ent b{font-size:12.5px}
+.ent .c{display:flex;gap:8px;align-items:center;padding:2px 6px;background:#f3f3f3;min-height:30px}
+.ent .c .v{flex:1;background:#fff;border:1px solid #d2d2d2;padding:3px 8px;min-height:24px;word-break:break-word}
+.ent .c .v:empty{background:#dedede;border-color:#dedede}
+.sg2{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}
+.cp{background:#fff;color:var(--ac);border:1px solid var(--ac);border-radius:3px;padding:2px 9px;font-size:12px;cursor:pointer;white-space:nowrap;font-weight:600}
+.cp:hover{background:var(--ac);color:#fff}
+.estado{display:flex;align-items:center;gap:8px;padding:6px 4px}
+.fich{display:flex;gap:8px;align-items:center;padding:6px 4px;flex-wrap:wrap}
+.fich .nom{flex:1;min-width:200px;background:#fff;border:1px solid #d2d2d2;padding:4px 8px}
+.fich .btn{background:var(--ac);color:#fff;padding:3px 10px;border-radius:3px;font-weight:600;font-size:12.5px}
+@media(max-width:720px){.sg .r,.ent{grid-template-columns:1fr}.sg2{grid-template-columns:1fr}.sg .r2{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>Registro de actividades formativas en SIGMA <small style="font-weight:400;opacity:.7">· v0 (prueba local)</small></h1>
+<p>Sube el justificante y obtén todo lo que hay que escribir en SIGMA. Normativa: EDONA A11/2026 y Manual SIGMA. Tus datos se guardan solo en este navegador.</p></header>
+<nav><button data-t="nueva" class="on">Nueva actividad</button><button data-t="tabla">Mi tabla</button><button data-t="dash">Panel</button><button data-t="perfil">Mis datos</button></nav>
+<main>
+<section id="nueva">
+ <div class="card"><h2>1 · Justificante</h2>
+  <div class="drop" id="drop">Arrastra aquí el PDF del justificante o <label style="display:inline;color:var(--ac);cursor:pointer;text-decoration:underline">elígelo<input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg" class="hide"></label>
+  <div class="hint" id="fstat">Se lee en tu navegador; el archivo no se envía a ningún sitio.</div></div>
+  <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">¿El PDF es una imagen o no se lee? Pega aquí el texto del justificante</summary><textarea id="pasted" placeholder="Texto del justificante (opcional)"></textarea><button class="b s sm" id="usePasted" style="margin-top:6px">Usar este texto</button></details>
+  <div id="detmsg" class="hint" style="margin-top:8px"></div></div>
+ <div class="card"><h2>2 · Datos de la actividad</h2>
+  <label>Tipo de documento</label>
+  <select id="tipo"><option value="">— elige —</option><option value="congreso">Congreso (asistencia / presentación / publicación)</option><option value="curso">Curso o taller</option><option value="conferencia">Conferencia, seminario o mesa redonda (asistencia)</option><option value="jornada">Jornada doctoral</option><option value="seminario">Seminario</option><option value="estancia">Estancia de investigación</option><option value="pub">Contribución de la tesis publicada (artículo, capítulo, actas…)</option><option value="docente">Colaboración docente</option><option value="edona">Actividad EDONA / Íberus / G-9 / divulgación (catálogo)</option><option value="otra">Otra actividad no prevista en la lista (punto 9)</option></select>
+  <div id="campos"></div>
+  <div id="preguntas"></div>
+  <div class="sec" style="margin-top:16px"><span class="t">EXPLICACIÓN ADICIONAL (OPCIONAL)</span><textarea id="libre" style="min-height:64px" placeholder="Por ejemplo: He asistido a un curso organizado por la Universidad de Sevilla, en Sevilla, el 27 de noviembre de 2024. Dura 8 horas."></textarea><p style="margin:6px 0 0"><button type="button" class="b s sm" id="mic">🎤 Dictar</button> <button type="button" class="b s sm" id="interp">Interpretar texto</button> <span id="micmsg" class="hint">Lo que escribas completa el justificante y, si se contradicen, manda tu texto. Rellena el formulario de arriba, que puedes revisar.</span></p></div>
+  <p><button class="b" id="gen">Generar entradas de SIGMA</button></p></div>
+ <div id="res"></div>
+</section>
+<section id="tabla" class="hide"><div class="card"><h2>Mi tabla de actividades</h2>
+ <p class="hint">Cada entrada que guardas desde "Nueva actividad" aparece aquí. Cambia el estado según avance SIGMA.</p>
+ <p><button class="b s sm" id="expJ">Exportar copia (JSON)</button> <button class="b s sm" id="expC">Exportar CSV</button> <label style="display:inline;color:var(--ac);cursor:pointer;text-decoration:underline">Importar copia<input type="file" id="impJ" accept=".json" class="hide"></label></p>
+ <div style="overflow:auto"><table id="tb"></table></div></div></section>
+<section id="dash" class="hide"></section>
+<section id="perfil" class="hide"><div class="card"><h2>Mis datos</h2><p class="hint">Se usan para rellenar la entidad. Se guardan una sola vez en este navegador.</p>
+ <label>Grupo de investigación (elige uno de la lista de SIGMA)</label><input id="pGrupo" list="dlGrupos" autocomplete="off" placeholder="Escribe para buscar y elige de la lista"><datalist id="dlGrupos"></datalist>
+ <label>Departamento / institución (elige uno de la lista de SIGMA)</label><input id="pDep" list="dlDeps" autocomplete="off" placeholder="Escribe para buscar y elige de la lista"><datalist id="dlDeps"></datalist><datalist id="dlPaises"></datalist>
+ <p><button class="b" id="pSave">Guardar</button> <span id="pOk" class="hint"></span></p></div></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const LISTAS={"departamentos": ["92 - Escuela de Doctorado de Navarra (EDONA)", "804 - Instituto de Agrobiotecnología y Recursos Naturales", "920 - Biblioteca", "921 - Centro Superior de Innovación Educativa", "1001 - Institute of Smart Cities - ISC", "1002 - Institute for Advanced Materials and Mathematics - INAMAT2", "1003 - Institute for Advanced Research in Business and Economics - INARBE", "1004 - Institute on Innovation and Sustainable Development in Food Chain - ISFOOD", "1005 - Institute for Advanced Social Research - ICOMMUNITAS", "1006 - Institute for Multidisciplinary Research in Applied Biology - IMAB", "2137 - Agronomía, Biotecnología y Alimentación", "2138 - Ciencias", "2139 - Ciencias de la Salud", "2140 - Ciencias Humanas y de la Educación", "2141 - Derecho", "2142 - Economía", "2143 - Estadística, Informática y Matemáticas", "2144 - Gestión de Empresas", "2145 - Ingeniería", "2146 - Ingeniería Eléctrica, Electrónica y de Comunicación", "2147 - Sociología y Trabajo Social"], "grupos": ["Grupo de redes, sistemas y servicios telemáticos", "Comunicación, señales y microondas", "Comunicaciones ópticas y aplicaciones electrónicas", "Grupo de Antenas", "Ingeniería mecánica aplicada y computacional -I.M.A.C.-", "Ingeniería de materiales y fabricación", "Diseño industrial", "Proyectos, ingeniería rural y energías renovables", "Protección de cultivos (PC)", "Tecnología, control y seguridad alimentaria (ALITEC)", "Ingeniería Eléctrica, Electrónica de Potencia y Energías Renovables (INGEPER)", "Ingeniería Térmica y de Fluidos", "Ingeniería biomédica", "Mecatrónica agraria", "Fruticultura y viticultura avanzadas", "Ingeniería Mecánica Aplicada y Computacional: Multisólido y Robótica", "AENOLTEC (Avances en enología)", "Sistemas Dinámicos y de Control", "THERRAE: Teledetección, Hidrología, Erosión, Riegos y Análisis Estructural.", "Tecnología Energética", "Agrobiotecnología", "AENOLTEC (Avances en enología y tecnologías alimentarias)", "Mecánica de Fluidos", "Producción Animal, Nutrición y Ciencia de los alimentos", "SENSORS", "Innovación en diseño y sostenibilidad", "Transferencia e innovación en economía circular", "Ecología y medio ambiente", "Control de la expresión génica", "Acústica", "Estadística espacial", "Sistemas distribuidos", "Fisiología vegetal y Agrobiología", "Física y tecnología de materiales", "DECYL (Datos, Estadística, Calidad y Logística)", "Propiedades físicas y aplicaciones de materiales", "Síntesis asimétrica", "Problemas diferenciales y aproximación de superficies", "Epidemiología", "Inteligencia artificial y razonamiento aproximado", "Didáctica de la Matemática", "Tecnologías y aplicaciones medioambientales (TAMA)", "Matemáticas del orden", "Fisiopatología y práctica clínica", "Álgebra. Aplicaciones.", "Biofilms microbianos", "Reactores Químicos y Procesos para la Valorización de Recursos Renovables", "Ejercicio Físico, Salud y Calidad de vida (E-FIT)", "ELIKOS. Nutrición y Actividad física para la Salud", "Creación de capacidad para la Promoción de Salud (CreaP)", "Química Analítica", "Integrated Group of Logistics and Transportation- Operations Research (GILT-OR)", "Em-An-Ner", "Evaluación y gestión sostenible del suelo", "Genética, Genómica y Microbiología", "Funciones especiales y métodos numéricos avanzados", "Investigación e innovación en Cuidados (Inno-CARE)", "ARIN. Artificial Intelligence and Machine Learning Research", "Move4Life: salud y movimiento", "Métodos Cuantitativos en Economía de la Salud", "Derecho del trabajo", "Derecho privado", "Mercados financieros", "Grupo marketing", "Organización de empresas", "Economía agraria", "Economía pública y regional", "Organización industrial, territorio y políticas públicas", "Historia y Economía", "Investigación en contabilidad", "Administración Pública", "Hugo Grocio", "Economía de la Empresa", "Social Equilibrium and Economic Decisions (Equilibrio social y decisiones económicas)", "Derecho internacional público y derecho de la Unión Europea", "Grupo de investigación para el estudio del Derecho Financiero de Navarra", "Libertades comunitarias y derecho común", "Análisis Económico", "Economía del Comportamiento y Desarrollo", "Principio de Mayoría", "Derechos Fundamentales, Constitucionalismo y Gobernanza Democrática", "Tecnología, prueba y garantías en el proceso judicial", "ALTER. Grupo de investigación", "José María Lacarra", "Cambios sociales", "Edarte", "Educación y salud", "Psicología Clínica y Psicopatología", "Efimec: Ética, filosofía y metodología de la ciencia", "Texto", "GIAS (Grupo de Investigación en Antropología Social)", "Ikerketa hizkuntzalaritzan eta ondare materiagabean / Investigación en lingüística y patrimonio inmaterial", "Desarrollo psicológico y educación.", "Sociología rural, movilidad e investigación social", "Educación holística e inclusiva", "Kimua", "Aprendizaje a lo largo de la vida. Life-long Learning", "Investigación e intervención psicosocial", "Encuentros. Cultura y sociedad en la Historia", "Funciones ejecutivas: psicología, música y salud mental", "Neurociencia cognitiva y del comportamiento", "ASSANA (Aprendizaje Significativo aplicado a la Salud y Naturaleza", "NAVLAT Navarre Language Acquisition and Teaching", "Intervención Psicológica", "Historia Contemporánea y Tiempo presente", "NeO: Neurozientziak eta Ongizatea", "Mousike", "SAREA (Social Action, Research, Education and Application)", "GIDHISEP: Grupo de Investigación en Didáctica de la Historia, las Ciencias Sociales y la Educación Patrimonial"], "paises": ["Afganistán", "Albania", "Alemania", "Andorra", "Angola", "Ant. Rep. Yugosl. de Macedonia", "Antigua Barbuda", "Antillas Francesas", "Antillas Holandesas", "Apátrida", "Arabia Saudita", "Argelia", "Argentina", "Armenia", "Australia", "Austria", "Azerbaiyan", "Bahamas", "Bahrein", "Bangladesh", "Barbados", "Bélgica", "Belice", "Benin-Dahomey", "Bhutan", "Bielorrusia", "Birmania", "Bolivia", "Bosnia Herzegovina", "Botswana", "Brasil", "Brunei", "Bulgaria", "Burkina-Faso (Alto Volta)", "Burundi", "Bután", "Cabo Verde", "Camboya", "Camerún", "Canadá", "Chad", "Chile", "China (República Popular)", "China Taipei", "Chipre", "Ciudad de Vaticano", "Colombia", "Comores", "Congo", "Corea del Norte", "Corea del Sur", "Costa de Marfil", "Costa Rica", "Croacia", "Cuba", "Dinamarca", "Djibuti", "Dominica", "Ecuador", "Egipto", "El Salvador", "Emiratos Árabes Unidos", "Eritrea", "Eslovaquia", "Eslovenia", "España", "Estados Unidos de América", "Estonia", "Etiopía", "Fidji", "Filipinas", "Finlandia", "Francia", "Franja de Gaza", "Gabón", "Gambia", "Georgia", "Ghana", "Granada", "Grecia", "Guatemala", "Guayana Francesa", "Guay.Holand.(Surinam)", "Guinea", "Guinea Bissau", "Guinea Ecuatorial", "Guyana", "Haití", "Honduras", "Hungría", "India", "Indonesia", "Internacional", "Irak", "Irán", "Irlanda (Eire)", "Islandia", "Islas Salomón", "Israel", "Italia", "Jamaica", "Japón", "Jordania", "Kazajstán", "Kenia", "Kirguistan", "Kiribati", "Kuwait", "Laos", "Lesotho", "Letonia", "Líbano", "Liberia", "Libia", "Liechtenstein", "Lituania", "Luxemburgo", "Madagascar", "Malasia", "Malawi", "Maldivas, islas", "Mali", "Malta", "Marruecos", "Marshall, Islas", "Mauricio(islas)", "Mauritania", "México", "Micronesia", "Moldavia", "Mónaco", "Mongolia", "Mozambique", "Namibia", "Nauru", "Nepal", "Nicaragua", "Níger", "Nigeria", "Noruega", "Nueva Zelanda", "Omán", "Paises Bajos", "Países y terr. no determinados", "Pakistán", "Palau", "Palestina", "Panamá", "Papúa y Nueva Guinea", "Paraguay", "Perú", "Polonia", "Portugal", "Puerto Rico", "Qatar", "Reino Unido", "República Centroafricana", "República Checa", "República de Serbia", "República del Yemen", "Republica Democratica del Cong", "República Dominicana", "República Sudafricana", "Ruanda", "Rumanía", "Rusia", "Sahara Occidental", "Sáhara Occidental", "Salomón, Islas", "Samoa Occidental", "San Cristóbal y Nieves", "San Marino", "San Vicente y Granadinas", "Santa Lucía", "Santo Tomé y Príncipe", "Senegal", "Serbia y Montenegro", "Seychelles, islas", "Sierra Leona", "Singapur", "Siria", "Somalia", "Sri Lanka (Ceilán)", "Sudán", "Sudán del Sur", "Suecia", "Suiza", "Surinam", "Swazilandia", "Tailandia", "Tanzania (Tangania)", "Tayikistán", "Timor Oriental", "Togo", "Tonga", "Trinidad y Tobago", "Túnez", "Turkmenistán", "Turquía", "Tuvalu", "Ucrania", "Uganda", "Uruguay", "Uzbekistán", "Vanuatu", "Vaticano", "Venezuela", "Vietnam", "Yemen del Sur", "Yugoslavia", "Zaire", "Zambia", "Zimbabue"], "tipos": ["1 - Formación de movilidad - Descripción variable", "6 - Formación tronco común (publicación) - Descripción variable", "7 - Formación tronco común (presentación congreso internacional) - Descripción variable", "8 - Formación tronco común (actividad docente) - Descripción variable", "9 - Formación tronco común (seminario) - Descripción variable", "10 - Formación transversal - Actividades transversales organizadas por la EDONA o IBERUS - Descripción variable", "11 - Formación temática - Actividades temáticas organizadas por la EDONA o IBERUS - Descripción variable", "12 - Formación transversal - Otras actividades específicas del Programa de Doctorado - Descripción variable", "13 - Formación temática - Otras actividades específicas del Programa de Doctorado - Descripción variable", "14 - Formación transversal - Actividades en movilidad: estancias en centros internacionales - Descripción variable", "15 - Formación temática - Actividades en movilidad: estancias en centros internacionales - Descripción variable", "16 - Formación temática - Actividades en movilidad: estancias en otros centros nacionales - Descripción variable", "17 - Formación transversal - Asistencia a conferencias, mesas redondas, seminarios y congresos - Descripción variable", "18 - Formación temática - Asistencia a conferencias, mesas redondas, seminarios y congresos - Descripción variable", "19 - Formación transversal - Participación en jornadas doctorales - Descripción variable", "20 - Formación temática - Participación en jornadas doctorales - Descripción variable", "21 - Formación temática - Participación en cursos y talleres - Descripción variable", "22 - Formación transversal - Participación en cursos y talleres - Descripción variable", "23 - Formación temática - Presentación de trabajos de la tesis en seminarios - Descripción variable", "24 - Formación temática - Presentación de trabajos de la tesis en congresos - Descripción variable", "25 - Formación temática - Publicación de trabajos de la tesis - Descripción variable", "26 - Formación transversal - Publicación de trabajos - Descripción variable", "27 - Formación transversal - Colaboración docente - Descripción variable", "28 - Actividad temática obligatoria (publicación) - tronco común - Descripción variable", "29 - Actividad temática obligatoria (presentación congreso internacional) - tronco común - Descripción variable", "30 - Actividad temática obligatoria (seminario interno 1) - tronco común - Descripción variable", "31 - Actividad temática obligatoria (seminario interno 2) - tronco común - Descripción variable"], "cursos": ["2026/27-0", "2025/26-0", "2024/25-0", "2023/24-0"]};
+const module={exports:{}};
+(function(){// Motor de reglas: de los datos de una actividad a los campos de SIGMA.
+// Normativa: Programa de formación EDONA (A17/2024) y homogeneización (A11/2026, julio 2025).
+// Es una función pura: no toca nada fuera de sí misma, para poder incrustarla después en una página.
+
+
+const NORMA = { version: 'A11/2026 (junio 2026)' };
+
+const TIPOS = {
+  1: 'Formación de movilidad', 11: 'Formación temática', 12: 'Formación transversal', 13: 'Formación temática', 6: 'Formación tronco común (publicación)', 7: 'Formación tronco común (presentación congreso internacional)',
+  9: 'Formación tronco común (seminario)', 10: 'Formación transversal', 15: 'Formación temática', 16: 'Formación temática',
+  17: 'Formación transversal', 18: 'Formación temática', 19: 'Formación transversal', 20: 'Formación temática', 21: 'Formación temática',
+  22: 'Formación transversal', 23: 'Formación temática', 24: 'Formación temática', 25: 'Formación temática', 26: 'Formación transversal',
+  27: 'Formación transversal',
+};
+const TIPO_TXT = {
+  1: '1 - Formación de movilidad - Descripción variable',
+  6: '6 - Formación tronco común (publicación) - Descripción variable',
+  7: '7 - Formación tronco común (presentación congreso internacional) - Descripción variable',
+  9: '9 - Formación tronco común (seminario) - Descripción variable',
+  10: '10 - Formación transversal - Actividades transversales organizadas por la EDONA o IBERUS - Descripción variable',
+  11: '11 - Formación temática - Actividades temáticas organizadas por la EDONA o IBERUS - Descripción variable',
+  12: '12 - Formación transversal - Otras actividades específicas del Programa de Doctorado - Descripción variable',
+  13: '13 - Formación temática - Otras actividades específicas del Programa de Doctorado - Descripción variable',
+  28: '28 - Actividad temática obligatoria (publicación) - tronco común - Descripción variable',
+  29: '29 - Actividad temática obligatoria (presentación congreso internacional) - tronco común - Descripción variable',
+  30: '30 - Actividad temática obligatoria (seminario interno 1) - tronco común - Descripción variable',
+  31: '31 - Actividad temática obligatoria (seminario interno 2) - tronco común - Descripción variable',
+  15: '15 - Formación temática - Actividades en movilidad: estancias en centros internacionales - Descripción variable',
+  16: '16 - Formación temática - Actividades en movilidad: estancias en otros centros nacionales - Descripción variable',
+  17: '17 - Formación transversal - Asistencia a conferencias, mesas redondas, seminarios y congresos - Descripción variable',
+  18: '18 - Formación temática - Asistencia a conferencias, mesas redondas, seminarios y congresos - Descripción variable',
+  19: '19 - Formación transversal - Participación en jornadas doctorales - Descripción variable',
+  20: '20 - Formación temática - Participación en jornadas doctorales - Descripción variable',
+  21: '21 - Formación temática - Participación en cursos y talleres - Descripción variable',
+  22: '22 - Formación transversal - Participación en cursos y talleres - Descripción variable',
+  23: '23 - Formación temática - Presentación de trabajos de la tesis en seminarios - Descripción variable',
+  24: '24 - Formación temática - Presentación de trabajos de la tesis en congresos - Descripción variable',
+  25: '25 - Formación temática - Publicación de trabajos de la tesis - Descripción variable',
+  26: '26 - Formación transversal - Publicación de trabajos - Descripción variable',
+  27: '27 - Formación transversal - Colaboración docente - Descripción variable',
+};
+
+
+// Catálogo de actividades con HEF fijas (A11/2026, puntos 10 y 11). hef puede ser número o variantes {clave: HEF}.
+const CATALOGO = [
+  // Oferta de actividades transversales de la EDONA (tablas 2023/24 y 2026/27; valores orientativos): van primero para que se detecten antes que las genéricas.
+  { id: 'dmp', punto: 'Oferta EDONA', nombre: 'Elaborar un plan de gestión de datos', hef: 1, ft: 'FTR', re: /plan de gesti[oó]n de datos/i },
+  { id: 'openscience', punto: 'Oferta EDONA', nombre: 'Open Science and Data Management Plan', hef: 2, ft: 'FTR', re: /open science/i },
+  { id: 'gpsprot', punto: 'Oferta EDONA', nombre: 'GPS-Doctoral: Protección y transferencia del conocimiento', hef: 1, ft: 'FTR', re: /protecci[oó]n y transferencia del conocimiento/i },
+  { id: 'gps', punto: 'Oferta EDONA', nombre: 'GPS doctoral', hef: 4, ft: 'FTR', re: /gps.?doctoral/i },
+  { id: 't3mib', punto: 'Oferta EDONA', nombre: 'Concurso T3M - Campus Íberus', hef: { participacion: 3, finalista: 6, ganador: 10 }, ft: 'FTR', re: /\bt3m\b|campus [ií]berus.{0,40}3.?minut/i },
+  { id: 'unita', punto: 'Oferta EDONA', nombre: 'My 3-minute PhD thesis (UNITA)', hef: { participacion: 6, finalista: 10, ganador: 15 }, ft: 'FTR', re: /unita|my 3.?minute/i },
+  { id: 'zotero', punto: 'Oferta EDONA', nombre: 'Taller de gestión de referencias bibliográficas ZOTERO', hef: 1.5, ft: 'FTR', re: /zotero/i },
+  { id: 'labmercado', punto: 'Oferta EDONA', nombre: 'Del laboratorio al mercado (CEIN)', hef: 1, ft: 'FTR', re: /del laboratorio al mercado/i, aviso: 'Son 1 HEF por cada sesión: multiplica por las sesiones a las que asististe.' },
+  { id: 'perfiles', punto: 'Oferta EDONA', nombre: 'Taller: Saca provecho de tus perfiles de investigador', hef: 1.5, ft: 'FTR', re: /perfiles de investigador/i },
+  { id: 'posterdis', punto: 'Oferta EDONA', nombre: 'Diseño de un póster científico', hef: 1, ft: 'FTR', re: /dise[ñn]o de un p[oó]ster/i },
+  { id: 'mentorsenior', punto: 'Oferta EDONA', nombre: 'Programa Mentoría Sénior', hef: 4, ft: 'FTR', re: /mentor[ií]a s[eé]nior/i },
+  { id: 'reactor', punto: 'Oferta EDONA', nombre: 'Reactor de Innovación', hef: 10, ft: 'FT y FTR', re: /reactor de innovaci[oó]n/i, aviso: 'La oferta de la EDONA da 20 HEF de formación temática y 10 HEF de transversal: esta entrada recoge las 10 transversales; registra aparte las 20 temáticas con el tipo 11.' },
+  { id: 'vida', punto: 'Oferta EDONA', nombre: 'Taller "Hay vida más allá del doctorado"', hef: 1, ft: 'FTR', re: /hay vida m[aá]s all[aá] del doctorado/i },
+  { id: 'vegetales', punto: 'Oferta EDONA', nombre: 'Experimentación científica con "modelos vegetales"', hef: 8, ft: 'FT y FTR', re: /modelos vegetales/i, aviso: 'La oferta da 8 HEF entre FTR y FT: reparte según el programa (tipo 10 para la parte transversal, tipo 11 para la temática).' },
+  { id: 'g9plan', punto: 'Oferta EDONA', nombre: 'Plan de formación para doctorandos G-9 (on-line)', hef: 0, ft: 'FT y FTR', re: /plan de formaci[oó]n para doctorandos g-?9/i, valorar: true },
+  { id: 'ueu', punto: 'Oferta EDONA', nombre: 'Doktoregaientzeko ikastaroak (UEU-GOI)', hef: 0, ft: 'FTR', re: /doktoregaientzeko|ueu.?goi/i, valorar: true },
+  { id: 'liderazgo', punto: 'Oferta EDONA', nombre: 'Taller "Liderazgo personal y comunicación efectiva en el doctorado"', hef: 1, ft: 'FTR', re: /liderazgo personal/i },
+  { id: 'oral', punto: 'Oferta EDONA', nombre: 'Taller: Estrategias para una primera comunicación oral', hef: 1, ft: 'FTR', re: /primera comunicaci[oó]n oral/i },
+  { id: 'dialnet', punto: 'Oferta EDONA', nombre: 'Curso sobre Dialnet como herramienta para la investigación', hef: 2, ft: 'FTR', re: /dialnet/i },
+  { id: 'iag', punto: 'Oferta EDONA', nombre: 'Taller: La IA generativa y las búsquedas bibliográficas para revisiones sistemáticas', hef: 2, ft: 'FTR', re: /inteligencia artificial generativa.{0,80}b[uú]squedas/i },
+  { id: 'busqueda', punto: 'Oferta EDONA', nombre: 'Estrategias de búsqueda avanzadas para revisiones de tipo sistemático', hef: 2, ft: 'FTR', re: /estrategias de b[uú]squeda avanzadas|revisiones de tipo sistem/i },
+  { id: 'sigma', punto: 'Oferta EDONA', nombre: 'Taller sobre el Documento de Actividades y Sigma', hef: 0, ft: 'FTR', re: /documento de actividades y sigma|taller de la aplicaci[oó]n .?sigma/i, aviso: 'Esta actividad no tiene HEF asignadas.' },
+  { id: 'diaeuropeo', punto: 'Oferta EDONA', nombre: 'Día Europeo del Doctorado', hef: 4, ft: 'FTR', re: /d[ií]a europeo del doctorado/i },
+  { id: 'ethics', punto: 'Oferta EDONA', nombre: 'Ethics & Research Integrity online training (Campus Íberus)', hef: 2, ft: 'FTR', re: /ethics.{0,20}research integrity/i },
+  { id: 'bienvenida', punto: 'Oferta EDONA', nombre: 'Jornada de Bienvenida de Nuevos Doctorandos', hef: 2, ft: 'FTR', re: /jornada de bienvenida/i, asistencia: true },
+  { id: 'competencias', punto: 'Oferta EDONA', nombre: 'Curso Competencias en Información (Biblioteca)', hef: 1, ft: 'FTR', re: /competencias en informaci[oó]n/i, aviso: 'Son 1 HEF por curso.' },
+  { id: 'cienciaabierta', punto: 'Oferta EDONA', nombre: 'Las tesis doctorales en el contexto de la ciencia abierta (Repositorio Académica-e)', hef: 0.5, ft: 'FTR', re: /ciencia abierta.{0,80}(repositorio|acad[eé]mica)/i },
+  { id: 'indicios', punto: 'Oferta EDONA', nombre: 'Taller: Indicios bibliográficos de calidad', hef: 1, ft: 'FTR', re: /indicios bibliogr[aá]ficos/i },
+  { id: 'webinarg9', punto: 'Oferta EDONA', nombre: 'Webinarios organizados por G-9 y Charlesworth', hef: 2, ft: 'FTR', re: /charlesworth|webinarios? .{0,30}g-?9/i, aviso: 'Son 2 HEF FTR por curso (máximo 6 horas).' },
+  { id: 'herramientas', punto: 'Oferta EDONA', nombre: 'Herramientas para afrontar el proceso de elaboración de la tesis doctoral', hef: 1, ft: 'FTR', re: /herramientas para afrontar/i },
+  { id: 'emprendimiento', punto: 'Oferta EDONA', nombre: 'Programa de emprendimiento tecnológico digital', hef: 12, ft: 'FTR', re: /emprendimiento tecnol[oó]gico/i, aviso: 'La oferta indica 12 HEF o hasta 6 HEF según el caso; ajusta el valor.' },
+  { id: 'conversation', punto: 'Oferta EDONA', nombre: 'The Conversation', hef: 2, ft: 'FTR', re: /the conversation/i },
+  { id: 'publishperish', punto: 'Oferta EDONA', nombre: 'Publish or Perish! Scientific Publication course (in English)', hef: 2, ft: 'FTR', re: /publish or perish/i },
+  { id: 'abai1', punto: '10.a', nombre: 'Curso ABAI-1', hef: 10, ft: 'FTR', re: /abai.?(1|i\b)|aspectos b[aá]sicos.*parte i\b/i },
+  { id: 'abai2', punto: '10.a', nombre: 'Curso ABAI-2', hef: 6, ft: 'FTR', re: /abai.?(2|ii)|aspectos b[aá]sicos.*parte ii/i },
+  { id: 'valorizacion', punto: '10.b', nombre: 'Valorización de la Investigación Doctoral (CEIN)', hef: 2, ft: 'FTR', re: /valorizaci[oó]n de la investigaci[oó]n/i },
+  { id: 'explotacion', punto: '10.c', nombre: 'Explotación Comercial de la Tesis (CEIN)', hef: 6, ft: 'FTR', re: /explotaci[oó]n comercial/i },
+  { id: 'posdoc', punto: '10.d', nombre: 'Curso impartido por investigador/a posdoctoral asimilado/a a beca', hef: 8, ft: 'FT/FTR', re: /ram[oó]n y cajal|juan de la cierva|beatriz galindo/i },
+  { id: 'webinar', punto: '10.e', nombre: 'Webinar De la investigación al Mercado (CEIN)', hef: 6, ft: 'FTR', re: /de la investigaci[oó]n al mercado/i },
+  { id: 'tesis3', punto: '10.f', nombre: 'Concurso Tesis en 3 minutos', hef: { participacion: 6, finalista: 10, ganador: 15 }, ft: 'FT y FTR', re: /tesis en 3 minutos|3.?minute thesis|3mt/i },
+  { id: 'unita3', punto: '10.g', nombre: 'My 3-minute PhD thesis (UNITA)', hef: { participacion: 6, finalista: 10, ganador: 15 }, ft: 'FT y FTR', re: /unita/i },
+  { id: 'mentoria', punto: '10.h', nombre: 'Programa de Mentoría de Doctorandos Internacionales (Íberus)', hef: { formacion: 5, mentor: 10 }, ft: 'FTR', re: /mentor[ií]a/i },
+  { id: 'poster', punto: '10.i', nombre: 'Jornadas doctorales G-9 / Íberus (Jaca): póster', hef: { participacion: 12, accesit: 15, mejor: 18 }, ft: 'FT y FTR', re: /p[oó]ster.*(g-?9|[ií]berus|jaca)|jornadas doctorales (g-?9|[ií]berus)/i },
+  { id: 'academic', punto: '10.j', nombre: 'Curso Academic Writing', hef: 6, ft: 'FTR', re: /academic writing|core writing/i },
+  { id: 'orientacion', punto: '10.k', nombre: 'Taller Orientación Profesional (Fundación Univ-Soc)', hef: 2, ft: 'FTR', aviso: 'A11/2026 (punto 10.k) da 2 HEF; la oferta de la EDONA indica 1 HEF por cada taller. Ajusta según tu caso.', re: /orientaci[oó]n profesional/i },
+  { id: 'biblio', punto: '10.l', nombre: 'Taller Bibliopartículas', hef: 0.5, ft: 'FTR', re: /biblio.?part[ií]culas/i },
+  { id: 'eventos', punto: '11.a', nombre: 'Evento reglado de divulgación científica', hef: { max: 6 }, ft: 'FTR', re: /noche europea|semana de la ciencia|upna show|ciencia ciudadana|festival de arte y ciencia/i, tope: 6 },
+  { id: 'canales', punto: '11.b', nombre: 'Canal de divulgación científica', hef: { max: 6 }, ft: 'FTR', re: /ciencia al punto|the conversation|traductor de ciencia/i, tope: 6 },
+  { id: 'hilotesis', punto: '11.c', nombre: 'Concurso #HiloTesis', hef: { participacion: 2, finalista: 4, ganador: 6 }, ft: 'FTR', aviso: 'A11/2026 (punto 11.c) da 6 HEF al ganador; la oferta de la EDONA indica 8.', re: /hilotesis/i },
+  { id: 'premio', punto: '11.d', nombre: 'Premio o distinción en congreso o evento científico', hef: { max: 3 }, ft: 'FTR', re: /premio|accésit|best paper|mejor (p[oó]ster|comunicaci[oó]n)/i, tope: 3 },
+];
+function detectarCatalogo(texto) { return CATALOGO.filter(c => c.re.test(texto || '')); }
+
+const pad = n => String(n).padStart(2, '0');
+const fd = s => { if (!s) return 'dd/mm/aaaa'; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+const Q = s => `"${s == null || s === '' ? '[completar]' : s}"`;
+const fmt = n => String(n).replace('.', ',');
+const half = x => Math.round(x * 2) / 2;            // al medio punto más cercano
+// HEF por horas (punto 4: 2 HEF por media jornada de ~4 h, 4 si es internacional): hasta 3 h proporcional; a partir de ahí, por medias jornadas empezadas.
+const hefHoras = (h, intl) => { const k = intl ? 4 : 2; return h <= 3 ? Math.ceil(h / 4 * k * 2 - 1e-9) / 2 : Math.ceil(h / 4 - 1e-9) * k; };
+const ceilHalf = x => Math.ceil(x * 2 - 1e-9) / 2;   // al medio punto superior
+
+// Curso académico: el curso en que se SUBE la actividad (no el de la actividad). El cambio de curso ocurre hacia el 1 de octubre.
+function cursoDe(fechaISO) {
+  const [y, m] = fechaISO.split('-').map(Number);
+  const inicio = m >= 10 ? y : y - 1;
+  return `${inicio}/${String(inicio + 1).slice(2)}-0`;
+}
+
+const esUPNA = o => /(universidad p[uú]blica de navarra|upna|edona|escuela de doctorado|centro superior de innovaci[oó]n educativa)/i.test(o || '');
+const esISC = o => /(institute of smart cities|\bisc\b)/i.test(o || '');
+
+function fechaTexto(i) {
+  if (!i.ini) return '';
+  return i.fin && i.fin !== i.ini ? `del ${Q(fd(i.ini))} al ${Q(fd(i.fin))}` : `en ${Q(fd(i.ini))}`;
+}
+const lugar = i => [i.ciudad, i.pais].filter(Boolean).join(' - ');
+
+function entidadPara(rol, i, perfil, dudas) {
+  if (rol === 'presentacion' || rol === 'publicacion' || rol === 'tc-congreso' || rol === 'tc-publicacion')
+    return { tipo: 'Grupo de investigación', valor: perfil.grupo };
+  if (rol === 'docente') return { tipo: 'Departamento/institución', valor: perfil.departamento };
+  if (rol === 'estancia') return { tipo: 'Otra', valor: i.centro, pais: i.paisSigma || i.pais };
+  if (rol === 'tc-seminario') return { tipo: 'Universidad', valor: 'Universidad Pública de Navarra' };
+  if (rol === 'edona') return { tipo: 'Universidad', valor: 'Universidad Pública de Navarra' };
+  // asistencia, cursos, jornadas
+  if (esISC(i.organizador)) { dudas.push('Entidad: lo organiza el ISC. En tus apuntes lo marcaste como Grupo de investigación; confirma si es Universidad (UPNA) o Grupo.'); return { tipo: 'Grupo de investigación', valor: perfil.grupo }; }
+  if (esUPNA(i.organizador)) return { tipo: 'Universidad', valor: 'Universidad Pública de Navarra' };
+  return { tipo: 'Universidad', valor: i.universidad || i.organizador };
+}
+
+// Curso académico por defecto: el curso en que cae la actividad (su fecha de inicio). Si no hay fecha, el que figura en el justificante;
+// en la docencia, el curso siguiente al de la docencia (como en tus entradas). El usuario puede cambiarlo.
+function cursoAuto(i, hoy) {
+  if (i.cursoAcad) return i.cursoAcad;
+  if (i.tipo === 'docente' && i.cursoDocencia) { const y = parseInt(String(i.cursoDocencia).split('-')[1], 10); if (y) return `${y}/${String(y + 1).slice(2)}-0`; }
+  const f = i.ini || i.fechaPub;
+  if (f) return cursoDe(f);
+  if (i.cursoDoc) return i.cursoDoc;
+  return cursoDe(i.subida || hoy);
+}
+function base(i, perfil, hoy) {
+  return { curso: cursoAuto(i, hoy), ini: fd(i.ini), fin: fd(i.fin || i.ini), obs: '', dudas: [], adjunto: '' };
+}
+
+function generar(i, perfil, hoy) {
+  const R = [];
+  const nombreCorto = i.nombreCorto || i.evento;
+  const add = (code, hef, rol, desc, extra) => {
+    const dudas = [];
+    const r = Object.assign(base(i, perfil, hoy), { code, tipo: TIPO_TXT[code], ft: code >= 6 && code <= 9 ? 'TC' : (TIPOS[code].includes('transversal') || TIPOS[code] === 'Formación transversal' ? 'FTR' : 'FT'), hef, desc, rol, regla: '' }, extra || {});
+    r.entidad = entidadPara(rol, i, perfil, dudas);
+    r.dudas = (r.dudas || []).concat(dudas);
+    if (!i.ini) r.dudas.push('La fecha no consta en el justificante: indícala en el campo de fecha de arriba.');
+    R.push(r); return r;
+  };
+  const dt = fechaTexto(i), lug = lugar(i);
+  const dtCong = i.ini ? `en ${Q(fd(i.ini))}` : '';
+  const org = i.organizador ? `, organizado por ${Q(i.organizador)}` : '';
+  const en = lug ? `, celebrada en ${Q(lug)}` : '';
+
+  switch (i.tipo) {
+    case 'congreso': {
+      const intl = !!i.internacional;
+      if (i.roles.includes('asistencia')) {
+        const hef = i.hefDoc ?? (intl ? 6 : 1);
+        add(i.tesis === false ? 17 : 18, hef, 'asistencia', `Asistencia a Congreso ${Q(i.evento)}${org}${en}, ${dtCong}.`,
+          { regla: intl ? 'Asistencia a congreso internacional: 6 HEF, según la indicación de la EDONA (no consta en la norma escrita, que fija 2 HEF; punto 6 de A11/2026).' : 'Asistencia a congreso nacional: 1 HEF (A11/2026, punto 6).', adjunto: `Certificado de asistencia al congreso ${nombreCorto}` });
+      }
+      let pres = null;
+      if (i.roles.includes('presentacion')) {
+        pres = add(24, intl ? 12 : 6, 'presentacion', `Presentación en Congreso ${Q(i.evento)}${org}${en}, ${dtCong}.`,
+          { regla: `Presentación en congreso ${intl ? 'internacional: 12' : 'nacional: 6'} HEF (A11/2026, punto 2).`, obs: i.titulo ? `El título de la presentación realizada es: ''${i.titulo}''.` : '', adjunto: `Certificado de presentación en congreso ${nombreCorto}` });
+        if (i.tcCongreso) {
+          if (!intl) pres.dudas.push('El tronco común exige un congreso internacional.');
+          add(7, 0, 'tc-congreso', pres.desc, { regla: 'Duplicado con 0 HEF para el tronco común (Manual SIGMA 5.9).', obs: pres.obs, adjunto: pres.adjunto });
+        }
+      }
+      if (i.roles.includes('publicacion')) R.push(...pub(i, perfil, hoy, true));
+      break;
+    }
+    case 'conferencia': {
+      const intl = !!i.internacional;
+      const largo = i.horas && i.horas >= 3; // sesión formativa de varias horas: se computa por medias jornadas (punto 4)
+      const hefC = i.hefDoc ?? (largo ? hefHoras(i.horas, intl) : (intl ? 2 : 1));
+      add(i.tesis === false ? 17 : 18, hefC, 'asistencia', `Asistencia a la ${i.denom || 'Conferencia'} ${i.evento} , organizada por ${Q(i.organizador)}, celebrada en ${Q(i.lugarCurso || lug)}, el ${Q(fd(i.ini))}.`,
+        { regla: largo && i.hefDoc == null ? `Sesión de ${i.horas} h: ${intl ? 4 : 2} HEF por media jornada de unas 4 h (A11/2026, punto 4).` : `Asistencia a conferencia/seminario: ${intl ? '2 HEF (internacional)' : '1 HEF'} (A11/2026, punto 6).`, adjunto: `Certificado de asistencia ${nombreCorto}` });
+      break;
+    }
+    case 'pub': R.push(...pub(i, perfil, hoy, false)); break;
+    case 'seminario': {
+      const intl = !!i.internacional;
+      const s = add(23, intl ? 8 : 4, 'seminario', `Presentación en Seminario ${Q(i.evento)}${org}, celebrado en ${Q(lug || 'UPNA')}, ${dt}.`, { regla: `Seminario ${intl ? 'internacional: 8' : 'interno: 4'} HEF (A11/2026, punto 3).` });
+      if (i.tcSeminario) add(9, 0, 'tc-seminario', `Seminario Interno organizado por ${Q(i.organizador)}, celebrado en ${Q('la Universidad Pública de Navarra, Pamplona')}`, { regla: 'Duplicado con 0 HEF (tronco común: 2 seminarios, valorados por ≥ 3 personas expertas).', adjunto: 'Certificado de presentación en Seminario Interno' });
+      break;
+    }
+    case 'curso': {
+      let hef, regla;
+      if (i.hefDoc != null) { hef = i.hefDoc; regla = 'HEF indicadas en el documento.'; }
+      else if (/core writing|academic writing/i.test(i.evento)) { hef = 6; regla = 'Academic Writing: 6 HEF FTR (A11/2026, 10.j).'; }
+      else if (i.horas != null) { hef = hefHoras(i.horas, i.internacional); regla = `${i.internacional ? 4 : 2} HEF por media jornada (≈ 4 h): ${i.horas} h ⇒ ${hef} HEF (A11/2026, punto 4).`; }
+      else { hef = 0; }
+      let code = i.tesis ? 21 : 22;
+      if (i.modoAsis) { code = i.tesis ? 18 : 17; hef = i.hefDoc ?? (i.internacional ? 2 : 1); regla = `Asistencia: ${i.internacional ? '2 HEF (internacional)' : '1 HEF (nacional)'} (A11/2026, punto 6).`; }
+      if (i.biblio) { code = 10; hef = 0.5; regla = 'Taller Bibliopartículas: 0,5 HEF FTR (A11/2026, 10.l).'; }
+      const prefijo = i.biblio ? 'Curso Biblioparticulas' : (i.tipoPart || 'Participación en Curso');
+      const rc = add(code, hef, 'curso', `${prefijo} ${Q(i.evento)}${org}, celebrado en ${Q(i.lugarCurso || lug)}, ${i.fin && i.fin !== i.ini ? `entre los días ${Q(fd(i.ini))} y ${Q(fd(i.fin))}${i.horas ? `, siendo su duración de ${Q(i.horas + ' horas')}` : ''}` : `el ${Q(fd(i.ini))}`}.`, { regla, adjunto: `Certificado realización curso ${nombreCorto}` });
+            if (!i.biblio && i.tesis === undefined) rc.dudas.push('¿FT o FTR? Depende de si el contenido es de la tesis (FT) o transversal (FTR) (punto 4).');
+      break;
+    }
+    case 'jornada': {
+      // A11/2026 punto 5: hasta 12 HEF (internacional/Íberus) o hasta 8 (nacional), repartidas entre FT y FTR según el programa.
+      // El tope es de la norma; el valor exacto lo decide el usuario (hefElegido) -> si falta, se plantea como duda.
+      const tope = i.internacional ? 12 : 8;
+      const hef = i.hefElegido ?? i.hefDoc ?? (i.horas ? Math.min(tope, hefHoras(i.horas, false)) : null);
+      const r = add(i.tesis === false ? 19 : 20, hef ?? tope, 'jornada', `Asistencia a la Jornada Doctoral ${i.evento} , organizada por ${Q(i.organizador)}, celebrada en ${Q(i.lugarCurso || lug)}, ${dt.replace('en ', 'el ')}.`,
+        { regla: `Jornadas doctorales ${i.internacional ? 'internacionales/Íberus: hasta 12' : 'nacionales: hasta 8'} HEF, a repartir entre FT y FTR según el programa (A11/2026, punto 5).`, adjunto: `Certificado de asistencia a jornada doctoral` });
+      if (hef == null) r.dudas.push(`HEF: la norma da un máximo de ${tope}, no un valor fijo. He puesto el máximo como propuesta (el programa de la jornada no consta); ajústalo según el programa de la jornada y el reparto FT/FTR.`);
+      else if (hef > tope) r.dudas.push(`Supera el máximo de ${tope} HEF de la norma.`);
+      break;
+    }
+    case 'edona': {
+      const c = i.catalogo;
+      let code = 10, nota = '';
+      if (c) {
+        if (/^11\./.test(c.punto)) { code = 12; nota = 'Actividad de divulgación/ciencia abierta (punto 11): tipo propuesto 12 (otras actividades específicas del Programa). Confírmalo con tu comisión.'; }
+        else if (c.ft === 'FT') code = 11;
+        else if (/FT/.test(c.ft) && c.ft !== 'FTR') nota = `Según la norma (punto ${c.punto}) corresponde a FT y FTR: reparte las HEF entre los dos tipos según el programa (tipo 10 para la parte transversal, tipo 11 para la temática).`;
+      }
+      const r = add(code, i.hefDoc ?? 0, 'edona', c && /^11\./.test(c.punto)
+        ? `${i.evento}, organizado por ${Q(i.organizador || 'la UPNA')}, ${i.ini ? `en ${Q(fd(i.ini))}` : ''}.`
+        : (c && !c.asistencia && c.punto !== 'Oferta EDONA' ? `Actividad formativa: ${i.evento}, organizada por la EDONA, impartida en la UPNA, en ${fd(i.ini)}.`
+        : `Asistencia a ${i.evento} , organizada por la Escuela de Doctorado de la Universidad Pública de Navarra, celebrada el ${fd(i.ini)}.`),
+        { regla: c ? `Catálogo A11/2026, punto ${c.punto}: ${c.nombre}${typeof c.hef === 'number' ? ' (' + fmt(c.hef) + ' HEF)' : ''}.` : 'HEF indicadas en el certificado de la EDONA.', adjunto: `Certificado realización curso ${nombreCorto}` });
+      if (nota) r.dudas.push(nota);
+      if (c && c.aviso) r.dudas.push(c.aviso);
+      if (c && c.valorar) r.dudas.push('Las HEF las valoran los directores: indica las que correspondan.');
+      if (c && c.tope && r.hef > c.tope) r.dudas.push(`Supera el máximo de ${c.tope} HEF del punto ${c.punto}.`);
+      if (c && c.hef && typeof c.hef === 'object' && c.hef.max && !i.hefDoc) r.dudas.push(`Indica las HEF concretas (máximo ${c.hef.max}, punto ${c.punto}).`);
+      break;
+    }
+    case 'otra': {
+      // Punto 9: actividades específicas no recogidas en la lista; el director puede validar hasta el 15 % de HEF.
+      const ft = i.tesis !== false;
+      const r = add(ft ? 13 : 12, i.hefDoc ?? 0, 'otra', `${i.evento}, organizado por ${Q(i.organizador || '')}, ${i.ini ? `en ${Q(fd(i.ini))}` : ''}.`,
+        { regla: 'Actividad no prevista en la lista (A11/2026, punto 9): hasta un 15 % de las HEF, validado por el director de tesis.', adjunto: `Justificante ${nombreCorto}` });
+      r.dudas.push('Punto 9: el director debe presentar la propuesta en la ficha de la Comisión Académica (tipo de formación y cómputo de HEF) y no puede superar el 15 % de las HEF.');
+      if (!i.hefDoc) r.dudas.push('Indica las HEF que propone el director.');
+      break;
+    }
+    case 'estancia': {
+      const sem = Math.floor((new Date(i.fin) - new Date(i.ini)) / 864e5 / 7);
+      const intlE = i.internacional !== false;
+      const hef = intlE ? (sem >= 12 ? 24 : sem >= 6 ? 12 : 0) : (sem >= 12 ? 12 : sem >= 6 ? 6 : 0);
+      const r = add(intlE ? 15 : 16, hef, 'estancia', `Estancia de investigación en ${Q(i.centro)}${i.financiacion ? ` bajo una ${i.financiacion}` : ''} en ${Q(i.ciudad + ', ' + i.pais)} del ${Q(fd(i.ini))} al ${Q(fd(i.fin))}.`,
+        { regla: `Estancia ${intlE ? 'internacional' : 'nacional'}: ${sem} semanas ⇒ ${hef} HEF (A11/2026, puntos 7-8).`, adjunto: 'Estancia de investigación' });
+      if (hef === 0) r.dudas.push('Menos de 6 semanas: la norma no la computa como estancia.');
+      r.dudas.push('Hay que aportar el informe del responsable del centro de acogida.');
+      break;
+    }
+    case 'docente': {
+      add(27, 6, 'docente', `Colaboración docente en ${Q(i.asignatura)}, en el ${Q('Departamento de Estadística, Informática y Matemáticas')} realizada en el ${Q('CURSO ' + i.cursoDocencia)} en ${Q(i.idioma)} por ${Q(i.horas + ' horas')}.`,
+        { regla: '6 HEF FTR por colaboración (como tus apuntes; el acuerdo A02/2022 no está en los archivos).', adjunto: 'Certificado colaboración tareas docentes' });
+      break;
+    }
+    default: throw new Error('tipo desconocido ' + i.tipo);
+  }
+  // Tipos nuevos de tronco común (28-31): se genera además la entrada equivalente a cada 6, 7 y 9, con 0 HEF.
+  for (const r of R.slice()) {
+    const par = { 6: 28, 7: 29, 9: i.seminarioNum === 2 ? 31 : 30 }[r.code];
+    if (!par) continue;
+    const tw = Object.assign({}, r, { code: par, tipo: TIPO_TXT[par], hef: 0, ft: 'TC', dudas: [], regla: `Entrada equivalente del tronco común con el tipo ${par} (0 HEF), generada junto a la del tipo ${r.code}.`, gemelo: true });
+    if (r.code === 9 && !i.seminarioNum) tw.dudas.push('Indica si es tu primer o segundo seminario interno: se ha puesto el tipo 30 (seminario 1); si es el segundo, es el tipo 31.');
+    R.push(tw);
+  }
+  // A11/2026 punto 12: máximo por actividad 20 HEF (FT) / 6 HEF (FTR), salvo estancias, jornadas mixtas, cursos FT largos con informe, programas interuniversitarios.
+  for (const r of R) {
+    const lim = r.ft === 'FT' ? 20 : r.ft === 'FTR' ? 6 : null;
+    const excepcion = ['estancia', 'jornada'].includes(r.rol) || r.code === 10;
+    if (lim && r.hef > lim && !excepcion) r.dudas.push(`Nota: el máximo habitual por actividad es ${lim} HEF (punto 12). Si es uno de los casos excepcionales, déjalo así; puedes cambiar las HEF a mano en "Editar HEF".`);
+  }
+  return R;
+}
+
+function pub(i, perfil, hoy, deCongreso) {
+  const t = i.tituloPub || i.titulo, y = i.anio;
+  // 1.a/1.b: 20 HEF FT; 1.d: indexada no JCR hasta 10 FT; 1.f: no relacionada con la tesis -> FTR hasta 6.
+  const noTesis = i.tesis === false;
+  const hef = noTesis ? 6 : i.indexacion === 'idx' ? 10 : 20;
+  const code = noTesis ? 26 : 25;
+  const desc = i.capitulo
+    ? `Publicación ${Q(t)} capítulo del libro ${Q(i.libro)}, editorial ${Q(i.editorial)} año ${y}.`
+    : `Publicación ${Q(t)} en ${Q(i.venue)}, año ${y}.`;
+  const r = Object.assign(base(i, perfil, hoy), { code, tipo: TIPO_TXT[code], ft: code === 25 ? 'FT' : 'FTR', hef, desc, rol: 'publicacion', dudas: [],
+    regla: 'Contribución publicada en un medio de calidad reconocida en el área o recogido por la CNEAI: 20 HEF (A11/2026, 1.a/1.b); revista indexada no JCR: hasta 10 (1.d).', adjunto: i.adjuntoPub || '' });
+  r.ini = fd(i.fechaPub || i.ini); r.fin = r.ini;
+  r.obs = i.obsPub || '';
+  r.entidad = entidadPara('publicacion', i, perfil, r.dudas);
+  r.dudas.push('Fecha de la publicación: no consta en el documento; confírmala.');
+  if (i.indexacion === 'idx' && !noTesis) r.dudas.push('Revista indexada no JCR: la norma da hasta 10 HEF (punto 1.d); ajusta el valor.');
+  if (i.indexacion === 'mono') r.dudas.push('Monografía en editorial de prestigio (punto 1.c): la Comisión puede valorar más de 20 HEF. Ajusta el valor.');
+  if (i.indexacion === 'patente') r.dudas.push('Patente (punto 1.e): hasta 20 HEF según explotación (B1/B2) y extensión de la protección. Ajusta el valor.');
+  const out = [r];
+  if (i.tcPublicacion) out.push(Object.assign({}, r, { code: 6, tipo: TIPO_TXT[6], ft: 'TC', hef: 0, rol: 'tc-publicacion', regla: 'Duplicado con 0 HEF para el tronco común.' }));
+  return out;
+}
+
+module.exports = { CATALOGO, detectarCatalogo, generar, cursoDe, NORMA, TIPO_TXT };
+
+})();
+const {generar,detectarCatalogo,CATALOGO}=module.exports;
+</script>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let perfil=LS.get('sigma_perfil',{grupo:'',departamento:''}), acts=LS.get('sigma_acts',[]), cur=null, texto='', fileName='', detHef=null, detCursoDoc=null, detDenom=null, lastDet={}, libreHecho='', lastI=null;
+const hoy=()=>new Date().toISOString().slice(0,10);
+const fmt=n=>String(n).replace('.',',');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// navegación
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.classList.toggle('on',x===b));$$('main>section').forEach(s=>s.classList.toggle('hide',s.id!==b.dataset.t));if(b.dataset.t==='tabla')renderTabla();if(b.dataset.t==='dash')renderDash();});
+$('#dlPaises').innerHTML=LISTAS.paises.map(x=>'<option value="'+esc(x)+'">').join('');
+$('#dlGrupos').innerHTML=LISTAS.grupos.map(x=>'<option value="'+esc(x)+'">').join('');$('#dlDeps').innerHTML=LISTAS.departamentos.map(x=>'<option value="'+esc(x)+'">').join('');
+if(perfil.grupo&&!LISTAS.grupos.includes(perfil.grupo))perfil.grupo='';if(perfil.departamento&&!LISTAS.departamentos.includes(perfil.departamento))perfil.departamento='';
+$('#pGrupo').value=perfil.grupo;$('#pDep').value=perfil.departamento;
+$('#pSave').onclick=()=>{const g=$('#pGrupo').value.trim(),d=$('#pDep').value.trim();const bad=[];
+ if(g&&!LISTAS.grupos.includes(g))bad.push('el grupo');if(d&&!LISTAS.departamentos.includes(d))bad.push('el departamento');
+ if(bad.length){$('#pOk').innerHTML='<span style="color:var(--er)">Elige '+bad.join(' y ')+' de la lista desplegable; no se admite texto libre.</span>';return}
+ perfil={grupo:g,departamento:d};LS.set('sigma_perfil',perfil);$('#pOk').textContent='Guardado.'};
+// ---------- lectura del documento ----------
+const MES={enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,setiembre:9,octubre:10,noviembre:11,diciembre:12};
+const MESEN={january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+const iso=(y,m,d)=>`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+function mesNum(s){s=(s||'').toLowerCase();return MES[s]||MESEN[s]||0}
+const MN='(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|may|june|july|august|september|october|november|december)';
+function fechas(t0){const out=[];let m;
+ const t=t0.replace(/(\d)(?:st|nd|rd|th)\b/g,'$1');
+ const Y=(t.match(/\b(20\d{2})\b/)||[])[1];
+ const yfb=y=>y||Y;
+ const SEP='(?:al|a|y|and|&|to|through|until|-|–)';
+ const push=(y,mo,d)=>{if(y&&mo)out.push(iso(y,mo,d))};
+ // A) rango completo con año en ambos extremos: "del 21 de junio de 2024 al 21 de junio de 2024" / "from November 1, 2025, through May 31, 2026"
+ const A=new RegExp('(?:del|from|between)\\s+(\\d{1,2})\\s+(?:de\\s+)?('+MN+')\\s+(?:de\\s+)?(20\\d{2})\\s+(?:al|to|until|through|and|a)\\s+(?:el\\s+)?(\\d{1,2})\\s+(?:de\\s+)?('+MN+')(?:\\s+(?:de\\s+)?(20\\d{2}))?','gi');
+ while(m=A.exec(t)){push(m[3],mesNum(m[2]),m[1]);push(yfb(m[6]||m[3]),mesNum(m[5]),m[4])}
+ const A2=new RegExp('(?:from|between)\\s+('+MN+')\\s+(\\d{1,2}),?\\s+(20\\d{2}),?\\s+(?:through|to|until|and|-|–)\\s+('+MN+')\\s+(\\d{1,2}),?\\s+(20\\d{2})','gi');
+ while(m=A2.exec(t)){push(m[3],mesNum(m[1]),m[2]);push(m[6],mesNum(m[4]),m[5])}
+ if(out.length)return out.sort();
+ // B) "27 al 28 de noviembre de 2024" / "19 & 20 March 2025" / "27 to 28 November 2024"
+ const B=new RegExp('(\\d{1,2})\\s*'+SEP+'\\s*(\\d{1,2})\\s+(?:de\\s+)?('+MN+')\\s+(?:de\\s+)?(20\\d{2})','gi');
+ while(m=B.exec(t)){push(m[4],mesNum(m[3]),m[1]);push(m[4],mesNum(m[3]),m[2])}
+ // C) "November 7 and 8, 2023" / "June 6-7, 2024" / "November 7 and 8 of the mentioned year"
+ const C=new RegExp('('+MN+')\\s+(\\d{1,2})\\s*'+SEP+'\\s*(\\d{1,2})(?:,?\\s+(20\\d{2}))?','gi');
+ while(m=C.exec(t)){push(yfb(m[4]),mesNum(m[1]),m[2]);push(yfb(m[4]),mesNum(m[1]),m[3])}
+ if(out.length)return out.sort();
+ // D) dos fechas numéricas seguidas: "15/4/2024 26/5/2024"
+ const D=/(\d{1,2})[\/.-](\d{1,2})[\/.-](20\d{2})\s+(?:al?\s+|-\s*)?(\d{1,2})[\/.-](\d{1,2})[\/.-](20\d{2})/g;
+ while(m=D.exec(t)){push(m[3],+m[2],m[1]);push(m[6],+m[5],m[4])}
+ if(out.length)return out.sort();
+ // E) fecha única anclada a "celebrado/held/durante/el día/on"
+ const E=new RegExp('(?:celebrad[oa]|held|durante|during|el d[ií]a|on|el)\\s+(?:en\\s+[A-Za-zÁ-ú ,]+?,?\\s+)?(?:el\\s+d[ií]a\\s+)?(\\d{1,2})\\s+(?:de\\s+)?('+MN+')\\s+(?:de\\s+)?(20\\d{2})','gi');
+ while(m=E.exec(t))push(m[3],mesNum(m[2]),m[1]);
+ if(out.length)return out.sort();
+ // F) fechas sueltas (se ignoran firma y verificación)
+ const clean=t.replace(/(fecha|date)\s*:?\s*\d{1,2}[\/.-]\d{1,2}[\/.-]20\d{2}/gi,'');
+ const F1=new RegExp('(\\d{1,2})\\s+(?:de\\s+)?('+MN+')\\s+(?:de\\s+)?(20\\d{2})','gi');while(m=F1.exec(clean))push(m[3],mesNum(m[2]),m[1]);
+ const F2=new RegExp('('+MN+')\\s+(\\d{1,2}),?\\s+(20\\d{2})','gi');while(m=F2.exec(clean))push(m[3],mesNum(m[1]),m[2]);
+ const F3=/(\d{1,2})[\/.-](\d{1,2})[\/.-](20\d{2})/g;while(m=F3.exec(clean))push(m[3],+m[2],m[1]);
+ return out.sort();}
+const NUM={un:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10};
+const CAPS_EXCL=/HACE CONSTAR|ZIURTATZEN|CERTIFICA|CERTIFICADO|UNIVERSIDAD|NAFARROAKO|EDONA/;
+function detectar(t,opts){opts=opts||{};t=t.replace(/\s+/g,' ').replace(/(\p{L}{2,})-\s+(?=\p{Lu})/gu,'$1-').replace(/(\p{L}{2,})-\s+(?!(?:and|or|of|the|y|e|de|en|to|for|with)\b)(?=\p{Ll})/gu,'$1');const l=t.toLowerCase(), d={};
+ const cat=detectarCatalogo(t);
+ const certCue=/(hace constar|certif|ha asistido|ha realizado|asisti[oó]|has attended|has participated|ha participado|ha superado|completed|certifica)/i.test(t);
+ const pubCue=/(abstract|doi\.org|keywords?|proceedings of|©|copyright|isbn)/i.test(t)&&!/(hace constar|certificate|certifica que|this is to certify|to whom it may)/i.test(t);
+ if(/colaborador docente|responsable de impartir la docencia|puesto ocupado/i.test(t))d.tipo='docente';
+ else if(/estancia de investigaci[oó]n|estancia (?:predoctoral |posdoctoral )?(?:realizada|llevada a cabo)|ha (?:realizado|completado|finalizado) una estancia|research stay|research visit|visiting (?:scholar|researcher|student)/.test(l)&&!/sesi[oó]n informativa/.test(l))d.tipo='estancia';
+ else if(cat.length&&cat[0].id==='academic'){d.tipo='curso';d.catAcademic=true}
+ else if(cat.length){d.tipo='edona';d.cat=cat[0].id}
+ else if(pubCue)d.tipo='pub';
+ else if(/jornadas? doctoral(?:es)?/.test(l))d.tipo='jornada';
+ else if(/organizad[ao]s? por (?:la )?(?:escuela de doctorado|edona)/.test(l)||(/hace constar/.test(l)&&/(directora de la escuela de doctorado|director de la escuela de doctorado)/.test(l)))d.tipo='edona';
+ else if(/\bjornada\b/.test(l)&&certCue){d.tipo='conferencia';d.denom='Jornada'}
+ else if(/speaker|ponente|ha impartido una charla|presented the work|presentation entitled|has presented|ha presentado|present[eéó](?![a-záéíóúñ])|presento(?![a-záéíóúñ])|he presentado|actively participated|comunicaci[oó]n|p[oó]ster|poster/.test(l)&&/congreso|conference|symposium|workshop|jornadas|campus|tech\b/.test(l))d.tipo='congreso';
+ else if(/congreso|conference|symposium|workshop/.test(l)&&/asisti|attend|participa/.test(l))d.tipo='congreso';
+ else if(/moderador|moderator|comit[eé] cient[ií]fico|scientific committee/.test(l)&&/congreso|conference|symposium|workshop|jornada/.test(l)){d.tipo='congreso';d.moderador=true}
+ else if(/seminar/.test(l))d.tipo=/ponente|speaker|present/.test(l)?'seminario':'conferencia';
+ else if(/curso|course|taller|aprovechamiento|denominado/.test(l))d.tipo='curso';
+ else if(/conferencia|charla|mesa redonda|lecture|talk/.test(l))d.tipo='conferencia';
+ d.pres=/ponente|speaker|presenta|presented|present[eéó](?![a-záéíóúñ])|charla|comunicaci[oó]n|p[oó]ster|oral/.test(l);
+ d.asis=/asisti|attended|attend|participado|participated|moderador|moderator|comit[eé] cient[ií]fico|scientific committee/.test(l);
+ const f=fechas(t);if(f.length){d.ini=f[0];d.fin=f[f.length-1]}
+ let h=t.match(/(\d+(?:[.,]\d+)?)[\s-]*(?:horas?|hours?|hrs?)\b/i);
+ if(h)d.horas=parseFloat(h[1].replace(',','.'));
+ else{const w=t.match(/\b(un|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+horas?(\s+y\s+media)?/i);if(w)d.horas=NUM[w[1].toLowerCase()]+(w[2]?0.5:0)}
+ const hh=t.match(/(\d+(?:[.,]\d+)?)\s*\(?\s*(?:HEF|horas? equivalentes?)/i);if(hh)d.hefDoc=parseFloat(hh[1].replace(',','.'));
+ // textos entre comillas
+ const qs=[...t.matchAll(/["“«]\s*([^"”»]{6,200}?)\s*["”»]/g)].map(x=>x[1].trim());
+ // evento por tipo
+ const tech=t.match(/\b([A-ZÁ-Ú][a-zá-ú]+\s?Tech\s+20\d{2})/);
+ const c=t.match(/(?:\d+[\s-]*hours?\s+)?(?:course|curso|workshop|taller)\s+(?:titled\s+|titulado\s+)?(.{6,200}?)\s+(?:by|impartido|organi[sz]ed|organizado)\b/i);
+ const den=t.match(/denominado:?\s+(.{3,100}?)\s+Que\b/);
+ const asist=t.match(/(?:ha asistido a|asisti[oó] a)\s+(?:la |el )?(.{6,160}?)(?:,\s*organizad|\.\s|,\s*celebrad|\s+celebrad[oa]\b)/i);
+ const jor=t.match(/Jornada Doctoral\s+["“]([^"”]+)["”]/i);
+ if(d.tipo==='congreso'){
+   const ent=t.match(/(?:entitled|titulad[ao]|presented the work|titled)\s*:?\s*["“]\s*([^"”]{6,300}?)\s*["”]/i)||(qs.length>=2?[0,qs[0]]:null);
+   if(ent)d.titulo=ent[1].trim();
+   if(tech)d.evento=tech[1];
+   else if(qs.length>=2)d.evento=qs[1];
+   else if(qs.length===1&&!d.titulo)d.evento=qs[0];
+   else if(qs.length===1)d.evento=qs[0];
+ }else if(d.tipo==='jornada'&&jor)d.evento=jor[1].trim();
+ else if(d.tipo==='edona'&&asist)d.evento=asist[1].replace(/[“”«»"]/g,'').trim();
+ else if(d.tipo==='curso'){
+   if(den)d.evento=den[1].replace(/^["“«]|["”»]$/g,'').trim();
+   else if(c)d.evento=c[1].replace(/^["“«]|["”»]$/g,'').trim();
+   else if(qs.length)d.evento=qs[0];
+   else{const caps=[...t.matchAll(/(?:[A-ZÁÉÍÓÚÑ0-9"“”:,]+\s+){3,}[A-ZÁÉÍÓÚÑ0-9"“”:,]+/g)].filter(x=>!/D(?:\.|ña?\.?)\s*(?:\/\s*D(?:ña?)?\.?)?\s*$/i.test(t.slice(Math.max(0,x.index-14),x.index))).map(x=>x[0].trim()).filter(x=>!CAPS_EXCL.test(x)).sort((p,q)=>q.length-p.length);if(caps.length)d.evento=caps[0].replace(/^[,:\s]+|[,:\s]+$/g,'')}
+ }
+ if(!d.evento&&qs.length&&d.tipo!=='pub'&&d.tipo!=='estancia'&&d.tipo!=='docente')d.evento=qs[0];
+ const og=t.match(/(?:organizad[oa]s?|organi[sz]ed)\s+(?:por|by)\s+(?:el |la |los |las |the )?([^,.\n]{3,120}?)(?=\s+(?:from|desde|del|el|on|dentro|y)\s+\d|[,.\n]|$)/i)||t.match(/(?:secretari[oa]|director[a]?)\s+d?e?l?\s*(Institute of Smart Cities(?: \(ISC\))?)/i);
+ if(og)d.organizador=og[1].trim();
+ else if((d.tipo==='jornada'||d.tipo==='conferencia')&&/Institute of Smart Cities/.test(t))d.organizador='Institute of Smart Cities (ISC)';
+ if(/Centro Superior de Innovaci[oó]n Educativa/i.test(t)&&(d.tipo==='curso'||d.tipo==='conferencia'||!d.tipo)){d.organizador='Centro Superior de Innovación Educativa de la Universidad Pública de Navarra';if(!d.lugarCurso)d.lugarCurso='UPNA'}
+ // universidad y lugar
+ {const CIUDAD={seville:['Sevilla','Universidad de Sevilla'],sevilla:['Sevilla','Universidad de Sevilla'],valencia:['Valencia','Universitat Politècnica de València'],madrid:['Madrid',''],navarra:['Pamplona','Universidad Pública de Navarra'],zaragoza:['Zaragoza','Universidad de Zaragoza'],barcelona:['Barcelona','']};
+  const ms=[...(d.organizador||'').matchAll(/(?:Universidad de|University of)\s+([A-Za-záéíóú]+)/gi)];const lm=ms.length?ms[ms.length-1][1].toLowerCase():null;
+  if(lm&&CIUDAD[lm]){d.lugarCurso=CIUDAD[lm][0]+', España';if(CIUDAD[lm][1])d.universidad=CIUDAD[lm][1]}
+  const um=t.match(/Universidad\s+(?:del?\s+)?[A-ZÁÉÍÓÚ][\wáéíóúñ]+(?:\s+[A-ZÁÉÍÓÚ][\wáéíóúñ]+){0,2}/);
+  if(um&&!d.universidad)d.universidad=um[0].trim().replace(/\s+(CERTIFICA|organizad\w*|Pública)$/i,m=>/Pública/i.test(m)?' Pública':'').trim();
+  const pc=t.match(/\b\d{5}\s+([A-ZÁÉÍÓÚ][\wáéíóúñ]+(?:\s*\/\s*[A-ZÁÉÍÓÚ][\wáéíóúñ]+(?:\s+[A-ZÁÉÍÓÚ][\wáéíóúñ]+)?)?)/);
+  if(pc&&!d.lugarCurso&&d.tipo!=='docente'&&!/Pamplona-Iru/.test(pc[0]))d.lugarCurso=pc[1].trim()+', España';
+  const held=t.match(/(?:held in|celebrad[oa] en|tuvo lugar en|held at)\s+([A-ZÁÉÍÓÚ][\wáéíóúñ]+)(?:,\s*([A-Z][a-z]+))?/);
+  if(held){d.ciudad=held[1];const P={Spain:'España',España:'España',Spain_:'España'};d.pais=held[2]?(P[held[2]]||held[2]):(/^(Sevilla|Madrid|Valencia|Barcelona|Pamplona|Alcoy|Zaragoza|Bilbao|Valladolid|Granada|Málaga|Tenerife)$/.test(held[1])?'España':'')}
+  if(!d.lugarCurso&&d.ciudad)d.lugarCurso=d.ciudad+(d.pais?', '+d.pais:'');
+  if((d.tipo==='jornada'||d.tipo==='conferencia')&&!d.lugarCurso&&/Pamplona|UPNA|Universidad P[uú]blica de Navarra/.test(t))d.lugarCurso='UPNA';
+  if(d.tipo==='estancia'){
+  const cm=t.match(/\b((?:[A-Z][A-Za-z.&-]+\s+){0,4}(?:University|Universidad|Universität|Université|Università|Institute|Institut)(?:\s+of\s+[A-Z][A-Za-z]+)?)/);if(cm)d.centro=cm[1].trim();
+  const ES=['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+  const zm=t.match(/([A-Z][A-Za-z.]+(?:\s[A-Z][A-Za-z.]+)?),\s+([A-Z][A-Za-z]+(?:\s[A-Z][a-z]+)?)\s+\d{5}(?:-\d{4})?/);
+  if(zm&&ES.includes(zm[2])){d.ciudad=zm[1];d.pais='Estados Unidos de América'}
+  if(/fulbright/i.test(t))d.financiacion='beca Fulbright';else if(/erasmus/i.test(t))d.financiacion='beca Erasmus+';
+  }}
+ if(d.tipo==='docente'){
+   d.asigs=[];let curso='',pend=[];
+   const rx=/CURSO\s+(20\d{2})\s*-\s*(20\d{2})|(\d{6})\s*-\s*([A-ZÁÉÍÓÚÑ0-9 ]+?)(?=\s+\d{6}\s*-|\s+\d{1,3}\s+(?:Castell|Ingl|Euskera))|(\d{1,3})\s+(Castell\s?ano|Ingl[eé]s|Euskera)\s+(?:Teor|Pr[aá]ct)/g;
+   let mm;while(mm=rx.exec(t)){
+     if(mm[1]){curso=mm[1]+'-'+mm[2];pend=[]}
+     else if(mm[3]){pend.push(mm[3]+' - '+mm[4].trim())}
+     else if(mm[5]){if(pend.length)d.asigs.push({curso,asig:pend[0],horas:+mm[5],idioma:mm[6].replace(/\s/g,'').replace(/^Castellano$/,'Castellano'),on:true});pend=[]}
+   }
+   delete d.ini;delete d.fin;delete d.horas;delete d.universidad;delete d.lugarCurso}
+ if(d.tipo==='pub'){const yy=t.match(/\b(20\d{2})\b/);if(yy)d.anio=yy[1];
+   const vn=t.match(/^(.{6,120}?)\s+(?:20\d{2})\b/);if(vn&&/reference module|proceedings|journal|transactions/i.test(vn[1]))d.venue=vn[1].trim();
+   if(!d.venue){const pr=t.match(/(Proceedings of the 20\d{2} [A-Za-z ]+?(?:Conference|Symposium|Congress))/);if(pr)d.venue=pr[1]}
+   const cap=[...t.matchAll(/(?:[A-ZÁÉÍÓÚÑ0-9\-:,()]+\s+){4,}[A-ZÁÉÍÓÚÑ0-9\-:,()]+/g)].map(x=>x[0].trim()).sort((p,q)=>q.length-p.length)[0];
+   if(cap&&cap.length>25)d.titulo=cap.toLowerCase().replace(/(^|[\s(\-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+   const ti=t.match(/20\d{2}\s+(.{4,120}?)\s+(?:Irene Izco)/);if(ti&&!d.titulo)d.titulo=ti[1].trim();
+   d.fechaPub=''; if(/reference module|book|libro|chapter|cap[ií]tulo/i.test(t))d.capitulo=true;
+   delete d.ini;delete d.fin;
+ }
+ const ca=t.match(/(?:durante el\s+)?curso\s+(?:acad[eé]mico\s+)?(20\d{2})\s*[\/-]\s*(?:20)?(\d{2})\b/i);if(ca&&d.tipo!=='docente')d.cursoDoc=ca[1]+'/'+ca[2]+'-0';
+ if(opts.libre){
+  if(!d.lugarCurso){const lg=t.match(/\b(?:en|in)\s+([A-ZÁÉÍÓÚ][\wáéíóúñ]+(?:\s+[A-ZÁÉÍÓÚ][\wáéíóúñ]+)?)(?=\s*(?:,|\.|\s+el\b|\s+del\b|\s+durante\b|\s+\d|$))/);if(lg){d.lugarCurso=lg[1];d.ciudad=lg[1]}}
+  if(!d.evento){const ev=t.match(/(?:titulad[oa]|llamad[oa]|denominad[oa]|sobre)\s+["“]?([^,."”]{4,120})/i);if(ev)d.evento=ev[1].trim()}
+ }
+ d.intlHint=/international|internacional/.test(l);
+ if(d.catAcademic){d.hefDoc=d.hefDoc??6}
+ return d;}
+async function leerPDF(file){
+ if(!window.pdfjsLib)throw new Error('No se pudo cargar el lector de PDF (hace falta conexión a internet la primera vez). Pega el texto del justificante en el cuadro de abajo.');
+ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+ const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let out='';
+ for(let p=1;p<=pdf.numPages;p++){const c=await (await pdf.getPage(p)).getTextContent();out+=c.items.map(i=>i.str).join(' ')+'\n'}
+ return out;}
+async function cargar(file){fileName=file.name.replace(/\.[^.]+$/,'');$('#fstat').textContent='Leyendo '+file.name+'…';texto='';
+ try{if(/pdf$/i.test(file.name))texto=await leerPDF(file);}catch(e){$('#detmsg').innerHTML='<span style="color:var(--er)">'+esc(e.message)+'</span>'}
+ if(texto.trim().length<30){$('#fstat').textContent=file.name;$('#detmsg').innerHTML='<span style="color:var(--wa)">No he podido leer texto del archivo (puede ser una imagen). Elige el tipo de documento y rellena los datos a mano, o pega el texto.</span>';aplicar({})}
+ else{$('#fstat').textContent=file.name+' · texto leído';aplicar(detectar(texto))}}
+$('#file').onchange=e=>e.target.files[0]&&cargar(e.target.files[0]);
+const dz=$('#drop');dz.ondragover=e=>{e.preventDefault()};dz.ondrop=e=>{e.preventDefault();e.dataTransfer.files[0]&&cargar(e.dataTransfer.files[0])};
+$('#usePasted').onclick=()=>{texto=$('#pasted').value;if(texto.trim())aplicar(detectar(texto))};
+// ---------- formulario por tipo ----------
+const F=(id,lab,type='text',ph='')=>`<div><label>${lab}</label><input id="f_${id}" type="${type}" placeholder="${ph}"></div>`;
+const FORM={
+ congreso:()=>`<div class="grid">${F('evento','Nombre del congreso')}${F('organizador','Organizado por')}${F('ciudad','Ciudad')}${F('pais','País')}${F('ini','Fecha inicio','date')}${F('fin','Fecha fin','date')}${F('titulo','Título de tu presentación (si presentas)')}${F('nombreCorto','Nombre corto (para el nombre del adjunto)')}</div>
+  <label>¿Qué entradas genera este justificante?</label><div class="radio"><label><input type="checkbox" id="r_asis"> Asistencia</label><label><input type="checkbox" id="r_pres"> Presentación</label><label><input type="checkbox" id="r_pub"> Contribución publicada (actas)</label></div>
+  <div id="pubbox" class="hide"><div class="grid">${F('pt','Título de la publicación')}${F('pv','Actas / revista')}${F('py','Año','number')}${F('pf','Fecha de publicación','date')}</div></div>`,
+ curso:()=>`<div class="grid">${F('evento','Nombre del curso')}${F('organizador','Organizado por')}${F('lugarCurso','Lugar (o "Online")')}${F('universidad','Universidad/entidad (si no es la organizadora)')}${F('ini','Fecha inicio','date')}${F('fin','Fecha fin','date')}${F('horas','Horas reales','number')}</div>`,
+ conferencia:()=>`<p class="hint">Incluye también la participación como ponente, miembro de comité científico o moderador (punto 6 de la norma).</p><div class="grid">${F('evento','Nombre de la conferencia / jornada')}${F('organizador','Organizada por')}${F('lugarCurso','Lugar')}${F('ini','Fecha','date')}${F('horas','Horas de duración','number')}${F('nombreCorto','Nombre corto (adjunto)')}</div>`,
+ jornada:()=>`<div class="grid">${F('evento','Nombre de la jornada')}${F('organizador','Organizada por')}${F('lugarCurso','Lugar')}${F('ini','Fecha','date')}${F('fin','Fecha fin','date')}${F('horas','Horas reales','number')}</div>`,
+ seminario:()=>`<div class="grid">${F('evento','Nombre del seminario')}${F('organizador','Organizado por')}${F('ciudad','Ciudad')}${F('pais','País')}${F('ini','Fecha','date')}${F('fin','Fecha fin','date')}</div>`,
+ estancia:()=>`<div class="grid">${F('centro','Centro de acogida')}${F('ciudad','Ciudad')}<div><label>País (elige de la lista de SIGMA)</label><input id="f_pais" list="dlPaises" autocomplete="off"></div>${F('ini','Fecha inicio','date')}${F('fin','Fecha fin','date')}${F('financiacion','Financiación / ayuda (opcional)')}</div>`,
+ pub:()=>`<div class="grid">${F('titulo','Título')}${F('venue','Revista / actas')}${F('anio','Año','number')}${F('fechaPub','Fecha de publicación','date')}${F('libro','Libro (si es capítulo)')}${F('editorial','Editorial (si es capítulo)')}</div>
+  <label>Tipo</label><select id="f_pubtipo"><option value="art">Artículo o actas</option><option value="cap">Capítulo de libro</option></select>
+  <label>Medio de publicación (A11/2026, 1.a–1.d)</label><select id="f_indexacion"><option value="">— elige —</option><option value="jcr">Medio de difusión de calidad reconocida en el área, p. ej. JCR (20 HEF)</option><option value="cneai">Medio recogido en la CNEAI (20 HEF)</option><option value="idx">Indexada no JCR (hasta 10 HEF)</option><option value="mono">Monografía en editorial de prestigio (la Comisión valora)</option><option value="patente">Patente (hasta 20 HEF)</option></select>`,
+ docente:()=>`<p class="hint">Asignaturas del certificado (una entrada de SIGMA por cada una). Si varias asignaturas comparten un mismo grupo de docencia, deja solo la primera.</p><div id="asigs"></div><button type="button" class="b s sm" id="addAsig">+ añadir asignatura</button><div class="grid">${F('ini','Fecha inicio de la docencia','date')}${F('fin','Fecha fin','date')}</div>`,
+ otra:()=>`<div class="grid">${F('evento','Nombre de la actividad')}${F('organizador','Organizada por')}${F('ini','Fecha','date')}${F('hefDoc','HEF propuestas por el director','number')}${F('nombreCorto','Nombre corto (adjunto)')}</div><p class="hint">Punto 9 de la norma: el director puede validar hasta el 15 % de las HEF con una ficha para la Comisión Académica.</p>`,
+ edona:()=>`<div class="grid"><div><label>Actividad del catálogo (A11/2026, puntos 10-11)</label><select id="f_cat"><option value="">— elige —</option>${CATALOGO.map(c=>`<option value="${c.id}">${c.punto} · ${c.nombre}</option>`).join('')}</select></div><div id="varbox"></div>${F('evento','Nombre tal como figura en el justificante')}${F('ini','Fecha','date')}</div><p class="hint">Las HEF se asignan solas según la actividad del catálogo (o las que indique el certificado).</p>`
+};
+const POPULAR=['ini','fin','evento','horas'];
+function pintar(tipo,d={}){
+ $('#campos').innerHTML=tipo?FORM[tipo]():'';
+ if(tipo==='docente'){const add=a=>{a=a||{};const r=document.createElement('div');r.className='grid asrow';r.innerHTML='<div><label>Asignatura (código - nombre)</label><input class="a_asig"></div><div><label>Curso de la docencia</label><input class="a_curso" placeholder="2024-2025"></div><div><label>Idioma</label><input class="a_idi"></div><div><label>Horas</label><input class="a_h" type="number"></div>';r.querySelector('.a_asig').value=a.asig||'';r.querySelector('.a_curso').value=a.curso||'';r.querySelector('.a_idi').value=a.idioma||'';r.querySelector('.a_h').value=a.horas||'';$('#asigs').appendChild(r)};
+  (d.asigs&&d.asigs.length?d.asigs:[{}]).forEach(add);$('#addAsig').onclick=()=>add({})}
+ if(tipo==='congreso'){$('#r_asis').checked=!!d.asis;$('#r_pres').checked=!!d.pres;$('#r_pub').onchange=e=>$('#pubbox').classList.toggle('hide',!e.target.checked);}
+ if(tipo==='edona'){const sel=$('#f_cat');sel.onchange=()=>variantes();if(d.cat){sel.value=d.cat;variantes();const c=CATALOGO.find(x=>x.id===d.cat);if(c&&!d.evento)$('#f_evento').value=c.nombre}}
+ ['ini','fin','evento','horas','organizador','lugarCurso','universidad','centro','ciudad','pais','paisSigma','financiacion'].forEach(k=>{const el=$('#f_'+k);if(el&&d[k]!=null)el.value=d[k]});
+ const nc=$('#f_nombreCorto');if(nc&&d.evento)nc.value=d.evento.slice(0,40);
+ preguntas(tipo,d);}
+function variantes(){const c=CATALOGO.find(x=>x.id===$('#f_cat').value);const b=$('#varbox');if(!c||typeof c.hef==='number'){b.innerHTML='';return}
+ b.innerHTML='<label>Variante (cambia las HEF)</label><select id="f_var">'+Object.entries(c.hef).map(([k,v])=>`<option value="${k}">${k} · ${k==='max'?'hasta '+v:v} HEF</option>`).join('')+'</select>'+(c.hef.max?'<label>HEF concretas (máx. '+c.hef.max+')</label><input id="f_hefMax" type="number" step="0.5">':'');}
+function radio(name,opts){return '<div class="radio">'+opts.map(([v,t])=>`<label><input type="radio" name="${name}" value="${v}"> ${t}</label>`).join('')+'</div>'}
+function preguntas(tipo,d={}){
+ let q='';const Q=(txt,body,extra='')=>`<div class="q"><b>Pregunta:</b> ${txt}${extra?`<div class="hint">${extra}</div>`:''}${body}</div>`;
+ if(!tipo){$('#preguntas').innerHTML='';return}
+ const hint=d.intlHint?'El documento menciona "international"/"internacional": es solo una pista, decide tú.':'';
+ if(['congreso','curso','conferencia','jornada','seminario','estancia'].includes(tipo)){
+  q+=Q('¿Es una actividad internacional?',radio('intl',[['1','Sí, internacional'],['0','No, nacional / interna']]),hint+(tipo==='curso'?' Cambia las HEF: 4 por media jornada si es internacional, 2 si no (punto 4).':tipo==='jornada'?' Las jornadas internacionales, Íberus y G-9 cuentan como internacionales (punto 5.a).':''));
+ }
+ if(['congreso','curso','conferencia','jornada','pub','otra'].includes(tipo))
+  q+=Q('¿Está relacionada con el tema de tu tesis?',radio('tesis',[['1','Sí (formación temática, FT)'],['0','No, es transversal (FTR)']]),'Decide si va como FT o FTR (puntos 1.f, 4, 5 y 6).');
+ 
+ 
+ if(tipo==='curso'&&/biblioteca|biblio|innovaci[oó]n educativa/i.test(d.organizador||'')&&(d.horas==null||d.horas<=1.5))q+=Q('¿Es un taller de Bibliopartículas?',radio('biblio',[['1','Sí'],['0','No']]),'Punto 10.l: 0,5 HEF por taller, tipo 10 (actividades transversales EDONA/Íberus).');
+ if(tipo==='seminario'){const n9=acts.filter(a=>+a.code===9).length;const sug=n9>=2?'0':n9===1?'2':'1';
+  q+=Q('¿Cuenta como seminario interno del tronco común?',radio('semtc',[['1','Sí, es el primero (tipos 9 y 30)'],['2','Sí, es el segundo (tipos 9 y 31)'],['0','No (ya tengo los dos o no aplica)']]),'Solo hacen falta dos seminarios internos para el tronco común. '+(n9?'En tu tabla ya hay '+n9+' registrado(s), así que te sugiero marcar la opción '+(sug==='0'?'"No"':'"el segundo"')+', pero decides tú.':'Si ya has registrado alguno, tenlo en cuenta.'))}
+ if(tipo==='congreso'||tipo==='pub')
+  q+=Q('¿Quieres que esta actividad cuente también para el tronco común?',radio('tc',[['1','Sí'],['0','No']]),tipo==='congreso'?'Solo la presentación en un congreso internacional cuenta (tipo 7).':tipo==='pub'?'Una publicación cuenta como tronco común (tipo 6).':'Un seminario interno de la UPNA, valorado por al menos 3 personas expertas (tipo 9).');
+ 
+ $('#preguntas').innerHTML=q;}
+$('#tipo').onchange=e=>pintar(e.target.value,{});
+function aplicar(d){lastDet=d;detHef=d.hefDoc!=null?d.hefDoc:null;detCursoDoc=d.cursoDoc||null;detDenom=d.denom||null;$('#tipo').value=d.tipo||'';pintar(d.tipo||'',d);
+ const msg=[];if(d.tipo)msg.push('Detectado: <b>'+$('#tipo').selectedOptions[0].text+'</b>');if(d.ini)msg.push('fechas '+d.ini+(d.fin&&d.fin!==d.ini?' → '+d.fin:''));if(d.horas)msg.push(d.horas+' h');
+ if(msg.length)$('#detmsg').innerHTML=msg.join(' · ')+'. Revisa los datos: todo es editable.';
+ else if(texto.trim().length>=30)$('#detmsg').innerHTML='<span style="color:var(--wa)">No he reconocido el tipo de documento. Elígelo en el desplegable.</span>';}
+// ---------- generar ----------
+const v=id=>{const e=$('#f_'+id);return e?(e.value||'').trim():''};
+const rv=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?e.value:null};
+function entrada(){const t=$('#tipo').value;if(!t)return null;const i={tipo:t,subida:hoy()};
+ ['evento','organizador','ciudad','pais','ini','fin','titulo','nombreCorto','lugarCurso','universidad','centro','paisSigma','financiacion','asignatura','cursoDocencia','idioma','venue','libro','editorial'].forEach(k=>{const x=v(k);if(x)i[k]=x});
+ if(v('horas'))i.horas=parseFloat(v('horas'));if(detHef!=null)i.hefDoc=detHef;if(detCursoDoc)i.cursoDoc=detCursoDoc;if(detDenom&&t==='conferencia')i.denom=detDenom;if(v('anio'))i.anio=v('anio');if(v('fechaPub'))i.fechaPub=v('fechaPub');
+ if(!i.fin)i.fin=i.ini;
+ if(rv('intl')!=null)i.internacional=rv('intl')==='1';if(rv('tesis')!=null)i.tesis=rv('tesis')==='1';
+ if(rv('tc')!=null){const tc=rv('tc')==='1';i.tcCongreso=tc;i.tcPublicacion=tc;i.tcSeminario=tc}
+ if(t==='congreso'){i.roles=[];if($('#r_asis').checked)i.roles.push('asistencia');if($('#r_pres').checked)i.roles.push('presentacion');if($('#r_pub').checked)i.roles.push('publicacion');
+  if(i.roles.includes('publicacion')){i.tituloPub=v('pt');}}
+ if(t==='pub'){i.titulo=v('titulo');i.capitulo=v('pubtipo')==='cap';i.indexacion=v('indexacion')||'jcr';i.venue=v('venue');}
+ if(t==='otra'&&v('hefDoc'))i.hefDoc=parseFloat(v('hefDoc'));
+ if(t==='curso'){i.biblio=/biblio/i.test(i.evento||'')||rv('biblio')==='1';}
+ 
+ if(t==='edona'){const c=CATALOGO.find(x=>x.id===v('cat'));if(c){i.catalogo=c;const vr=v('var');let h=typeof c.hef==='number'?c.hef:(c.hef.max?parseFloat(v('hefMax')||0):c.hef[vr]);i.hefDoc=i.hefDoc??h;if(!i.evento)i.evento=c.nombre}}
+ 
+ if(t==='docente')i.asigs=$$('.asrow').map(r=>({asig:r.querySelector('.a_asig').value.trim(),cursoDocencia:r.querySelector('.a_curso').value.trim(),idioma:r.querySelector('.a_idi').value.trim(),horas:parseFloat(r.querySelector('.a_h').value)||undefined})).filter(a=>a.asig);
+ if(t==='seminario'){const s=rv('semtc');i.tcSeminario=s==='1'||s==='2';if(s==='1'||s==='2')i.seminarioNum=parseInt(s)}
+ i.adjuntoBase=fileName;return i;}
+function faltan(i){const m=[];
+ const need=(c,t)=>{if(!c)m.push(t)};
+ if(['congreso','curso','conferencia','jornada','seminario','estancia'].includes(i.tipo))need(i.internacional!=null,'si es internacional o no');
+ if(['congreso','curso','conferencia','jornada','pub','otra'].includes(i.tipo))need(i.tesis!=null,'si está relacionada con la tesis');
+ if(i.tipo!=='estancia'&&i.tipo!=='docente'&&i.tipo!=='pub')need(i.evento,'el nombre del evento');
+ if(i.tipo==='congreso')need(i.roles.length,'al menos una entrada (asistencia, presentación o publicación)');
+ if(!perfil.grupo&&['congreso','pub'].includes(i.tipo))m.push('tu grupo de investigación (pestaña "Mis datos")');
+ if(!perfil.departamento&&i.tipo==='docente')m.push('tu departamento (pestaña "Mis datos")');
+ if(i.tipo==='seminario'&&rv('semtc')==null)m.push('si cuenta como seminario interno del tronco común');
+ if(i.tipo==='estancia'&&!LISTAS.paises.includes(i.pais||''))m.push('el país, elegido de la lista de SIGMA');
+ if(i.tipo==='docente'&&!i.asigs.length)m.push('al menos una asignatura');
+ return m;}
+let propuestas=[];
+function construir(i){let R;try{R=i.tipo==='docente'?i.asigs.flatMap(a=>generar({...i,asignatura:a.asig,cursoDocencia:a.cursoDocencia,idioma:a.idioma,horas:a.horas},perfil,hoy())):generar(i,perfil,hoy())}catch(e){$('#res').innerHTML='<div class="warn">'+esc(e.message)+'</div>';return}
+ propuestas=R.map(r=>{const adj=(r.adjunto||'')||('Justificante '+(i.nombreCorto||i.evento||''));return {...r,incluir:true,_adj:adj,justificante:fileName,dudas:r.dudas.slice()}});
+ pintarRes();}
+
+function aplicarLibre(){const t=$('#libre').value.trim();if(!t)return false;const d=detectar(t,{libre:true});const clean={};
+ Object.keys(d).forEach(k=>{const x=d[k];if(x===undefined||x===''||x===false||k==='intlHint')return;clean[k]=x});
+ const merged=Object.assign({},lastDet,clean);const keep=t;aplicar(merged);$('#libre').value=keep;libreHecho=keep;
+ $('#detmsg').innerHTML+=' · <b>Texto interpretado</b>: revisa los campos y contesta las preguntas.';return true}
+$('#interp').onclick=()=>{if(!aplicarLibre())$('#micmsg').textContent='Escribe o dicta algo primero.'};
+(function(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const mic=$('#mic');
+ if(!SR){mic.disabled=true;mic.title='Tu navegador no admite dictado';$('#micmsg').textContent='Tu navegador no admite el dictado por voz (usa Chrome o Edge). Puedes escribir el texto.';return}
+ let rec=null,on=false;
+ mic.onclick=()=>{if(on){rec&&rec.stop();return}
+  rec=new SR();rec.lang='es-ES';rec.interimResults=true;rec.continuous=true;const base=$('#libre').value;let fin='';
+  rec.onresult=e=>{let tmp='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript+' ';else tmp+=r[0].transcript}$('#libre').value=(base?base+' ':'')+fin+tmp};
+  rec.onerror=e=>{on=false;mic.textContent='🎤 Dictar';$('#micmsg').textContent=e.error==='not-allowed'?'No hay permiso para usar el micrófono. Permítelo en el navegador.':'No se pudo dictar ('+e.error+'). Escribe el texto.'};
+  rec.onend=()=>{on=false;mic.textContent='🎤 Dictar'};
+  try{rec.start();on=true;mic.textContent='⏹ Parar';$('#micmsg').textContent='Escuchando… (el navegador envía el audio a un servicio externo para transcribirlo)'}catch(x){$('#micmsg').textContent='No se pudo iniciar el dictado.'}}})();
+$('#gen').onclick=()=>{const lt=$('#libre').value.trim();if(lt&&lt!==libreHecho){aplicarLibre();$('#res').innerHTML='<div class="warn">He rellenado el formulario con tu texto. Revisa los datos, responde las preguntas y pulsa de nuevo «Generar entradas».</div>';return}
+ const i=entrada();if(!i){return alert('Elige el tipo de documento.')}
+ const m=faltan(i);if(m.length){$('#res').innerHTML='<div class="warn">Antes de generar, falta: '+m.join('; ')+'.</div>';return}
+ if(i.tipo==='congreso'&&i.roles.includes('publicacion')){i.tituloPub=v('pt');i.venue=v('pv');i.anio=v('py');i.fechaPub=v('pf');i.indexacion='jcr'}
+ lastI=i;construir(i);$('#res').scrollIntoView({behavior:'smooth'})};
+window.cambiaCurso=v=>{if(!lastI)return;lastI.cursoAcad=v||undefined;construir(lastI)};
+window.cambiaFecha=(k,val)=>{if(!lastI)return;lastI[k]=val;if(k==='ini'&&(!lastI.fin||lastI.fin<val))lastI.fin=val;construir(lastI)};
+function pintarRes(){const box=$('#res');
+ const cbtn=(ix,k)=>`<button class="cp" onclick="cpv(${ix},'${k}',this)">Copiar</button>`;
+ const ENT=['Universidad','Departamento/institución','Entidad registrada','Grupo de investigación','Otra'];
+ box.innerHTML='<div class="card"><h2>3 · Entradas para SIGMA</h2><div class="grid"><div><label>Fecha inicio (corrígela aquí si no constaba en el justificante)</label><input type="date" value="'+(lastI&&lastI.ini||'')+'" onchange="cambiaFecha(\'ini\',this.value)"></div><div><label>Fecha fin</label><input type="date" value="'+(lastI&&lastI.fin||'')+'" onchange="cambiaFecha(\'fin\',this.value)"></div></div><div class="grid"><div><label>Curso académico de SIGMA (por defecto, el curso en que cae la actividad)</label><select onchange="cambiaCurso(this.value)"><option value="">Automático</option>'+LISTAS.cursos.map(c=>'<option value="'+c+'"'+(lastI&&lastI.cursoAcad===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div></div><p class="hint">Cada tarjeta reproduce una entrada del formulario de SIGMA, con los campos en el mismo sitio. Copia cada valor en su casilla. <b>Adjunta el justificante en cada entrada.</b></p></div>'+
+ propuestas.map((p,ix)=>{const ftc=p.ft==='TC'?'<span class="tag tc">Tronco común · 0 HEF</span>':`<span class="tag">${p.ft}</span>`;
+  const ent=p.entidad||{};const ent_i=ENT.indexOf(ent.tipo);
+  return `<div class="card"><h3><label style="display:inline;color:var(--tx);font-size:14px"><input type="checkbox" style="width:auto" ${p.incluir?'checked':''} onchange="propuestas[${ix}].incluir=this.checked"> Entrada ${ix+1} · ${esc(p.tipo.split(' - ').slice(0,3).join(' - '))}</label> ${ftc}</h3>`+
+  p.dudas.map(d=>`<div class="dud">⚠ ${esc(d)}</div>`).join('')+
+  (p.dudas.length?`<div class="hint">Resuelve las dudas antes de copiar; puedes corregir los valores en la tarjeta.</div>`:'')+
+  `<div class="sg">
+   <div class="r"><b>Curso académico</b><div class="c"><div class="v">${esc(p.curso)}</div>${cbtn(ix,'curso')}</div></div>
+   <div class="r"><b>Tipo de actividad</b><div class="c"><div class="v">${esc(p.tipo)}</div>${cbtn(ix,'tipo')}</div></div>
+   <div class="r"><b>Descripción</b><div class="c"><div class="v">${esc(p.desc)}</div>${cbtn(ix,'desc')}</div></div>
+   <div class="r2"><b>Fecha inicio</b><div class="c"><div class="v">${esc(p.ini)}</div>${cbtn(ix,'ini')}</div><b>Fecha fin</b><div class="c"><div class="v">${esc(p.fin)}</div>${cbtn(ix,'fin')}</div><b>Número de días</b><div class="c"><div class="v gris">0</div></div></div>
+   <div class="r"><b>Número de horas</b><div class="c"><input class="v" type="number" step="0.5" value="${p.hef}" onchange="propuestas[${ix}].hef=parseFloat(this.value)||0"> ${cbtn(ix,'hef')}<span class="hint">HEF · editable</span></div></div>
+  </div>
+  <div class="sec"><span class="t">ENTIDAD DONDE SE REALIZARÁ LA ACTIVIDAD</span>`+
+  ENT.map((n,k)=>`<div class="ent"><input type="radio" style="pointer-events:none" ${k===ent_i?'checked':''}><b>${n}</b><div class="c">${k===ent_i?`<div class="v">${esc(ent.valor||'')}</div>${cbtn(ix,'ent')}`:`<div class="v"></div>`}</div></div>`).join('')+
+  `<div class="ent"><span></span><b>País</b><div class="c">${ent.pais?`<div class="v">${esc(ent.pais)}</div>${cbtn(ix,'pais')}`:`<div class="v"></div>`}</div></div></div>
+  <div class="sg2">
+   <div class="sec"><span class="t">* ESTADO</span><div class="estado"><input type="radio" checked style="width:auto;pointer-events:none"> Propuesta</div></div>
+   <div class="sec"><span class="t">OBSERVACIONES</span><div class="c" style="display:flex;gap:8px;align-items:flex-start"><div class="v" style="flex:1;background:#fff;border:1px solid #d2d2d2;padding:4px 8px;min-height:44px;white-space:pre-wrap">${esc(p.obs||'')}</div>${p.obs?cbtn(ix,'obs'):''}</div></div>
+  </div>
+  <div class="sec"><span class="t">FICHEROS ADJUNTOS</span><div class="fich"><span class="btn">+ Adjuntar</span><div class="nom">${esc(p._adj)}</div>${cbtn(ix,'adj')}<span class="hint">Archivo: ${esc(fileName||'tu justificante')}. Si pide un nombre, usa este.</span></div></div>
+  <div class="regla">Regla aplicada: ${esc(p.regla||'—')}</div></div>`}).join('')+
+ '<div class="card"><button class="b" id="save">Guardar las entradas marcadas en mi tabla</button> <span id="saved" class="hint"></span></div>';
+ $('#save').onclick=()=>{const add=propuestas.filter(p=>p.incluir).map(p=>({id:Date.now()+Math.random(),code:p.code,tipo:p.tipo,ft:p.ft,hef:p.hef,desc:p.desc,curso:p.curso,ini:p.ini,fin:p.fin,entidad:p.entidad,obs:p.obs,estado:'sin subir',internacional:null}));acts=acts.concat(add);LS.set('sigma_acts',acts);$('#saved').textContent=add.length+' guardada(s). Cuando las subas a SIGMA, cambia su estado en "Mi tabla".'};}
+window.cpv=(ix,k,btn)=>{const p=propuestas[ix];const m={curso:p.curso,tipo:p.tipo,desc:p.desc,ini:p.ini,fin:p.fin,hef:fmt(p.hef),ent:(p.entidad||{}).valor||'',pais:(p.entidad||{}).pais||'',obs:p.obs||'',adj:p._adj};const txt=String(m[k]??'');
+ (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).catch(()=>{const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()});
+ const o=btn.textContent;btn.textContent='¡Copiado!';setTimeout(()=>btn.textContent=o,900)};
+// ---------- tabla ----------
+const ESTADOS=['sin subir','propuesta','propuesta aceptada','validada'];
+let delPend=-1;
+window.borrarFila=ix=>{acts.splice(ix,1);LS.set('sigma_acts',acts);delPend=-1;renderTabla()};
+function renderTabla(){const t=$('#tb');
+ t.innerHTML='<tr><th>Tipo</th><th>Descripción</th><th>FT/FTR</th><th>HEF</th><th>Curso</th><th>Estado</th><th></th></tr>'+acts.map((a,ix)=>`<tr><td>${esc(a.code)}</td><td>${esc((a.desc||'').slice(0,110))}</td><td>${a.ft}</td><td>${fmt(a.hef)}</td><td>${esc(a.curso)}</td><td><select onchange="acts[${ix}].estado=this.value;LS.set('sigma_acts',acts)">${ESTADOS.map(e=>`<option ${e===a.estado?'selected':''}>${e}</option>`).join('')}</select></td><td style="white-space:nowrap">${delPend===ix?`<span class="hint">¿Borrar?</span> <button class="b sm" onclick="borrarFila(${ix})">Sí</button> <button class="b s sm" onclick="delPend=-1;renderTabla()">No</button>`:`<button class="b s sm" title="Borrar esta fila" onclick="delPend=${ix};renderTabla()">✕</button>`}</td></tr>`).join('')||'<tr><td colspan=7 class="hint">Todavía no hay actividades.</td></tr>';}
+function dl(name,txt,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:mime}));a.download=name;a.click()}
+$('#expJ').onclick=()=>dl('actividades_sigma.json',JSON.stringify(acts,null,1),'application/json');
+$('#expC').onclick=()=>dl('actividades_sigma.csv','﻿tipo;descripcion;ft;hef;curso;inicio;fin;estado\n'+acts.map(a=>[a.code,'"'+(a.desc||'').replace(/"/g,'""')+'"',a.ft,fmt(a.hef),a.curso,a.ini,a.fin,a.estado].join(';')).join('\n'),'text/csv');
+$('#impJ').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(s=>{try{acts=JSON.parse(s);LS.set('sigma_acts',acts);renderTabla()}catch(x){alert('Archivo no válido')}})};
+// ---------- panel ----------
+function suma(f,ft){return acts.filter(a=>a.ft===ft&&f(a)).reduce((s,a)=>s+(+a.hef||0),0)}
+function bar(lab,val,all,meta,col){const p=Math.min(100,val/meta*100),p2=Math.min(100,all/meta*100);return `<div class="card"><h3>${lab}</h3><div class="big">${fmt(val)} <span class="hint">/ ${meta} HEF validadas</span></div><div class="bar"><i style="width:${p2}%;background:#dcdcdc"></i><i style="width:${p}%;background:${col}"></i></div><div class="hint">Con propuestas y pendientes: ${fmt(all)} HEF${val>=meta?' · <b style="color:var(--ok)">Cumplido</b>':' · faltan '+fmt(Math.max(0,meta-val))+' validadas'}</div></div>`}
+function renderDash(){const val=a=>a.estado==='validada',all=()=>true;
+ const tc1=(codes,f)=>acts.filter(a=>codes.includes(+a.code)&&f(a)).length;
+ const tc=(codes,f)=>Math.max(tc1(codes,f),tc1(codes.map(c=>({6:[28],7:[29],9:[30,31]}[c]||[])).flat(),f));
+ const nSub=acts.filter(a=>a.estado==='sin subir').length,hSub=acts.filter(a=>a.estado==='sin subir').reduce((s,a)=>s+(+a.hef||0),0);
+ const nProp=acts.filter(a=>a.estado==='propuesta'||a.estado==='propuesta aceptada').length;
+ const tcb=(lab,codes,meta)=>`<div style="margin:6px 0">${lab}: <b>${tc(codes,val)}</b> validadas / ${meta} · ${tc(codes,all)} registradas ${tc(codes,val)>=meta?'<span class="tag ok">cumplido</span>':''}</div>`;
+ $('#dash').innerHTML=(acts.length?'':'<div class="card hint">Aún no hay actividades. Guarda entradas desde "Nueva actividad" y aquí verás tu cumplimiento.</div>')+
+ '<div class="kpis">'+bar('Formación temática (FT)',suma(val,'FT'),suma(all,'FT'),100,'#d03a12')+bar('Formación transversal (FTR)',suma(val,'FTR'),suma(all,'FTR'),30,'#333333')+'</div>'+
+ `<div class="card"><h2>Tronco común</h2>${tcb('Publicaciones (tipos 6 / 28)',[6],1)}${tcb('Seminarios internos (tipos 9 / 30-31)',[9],2)}${tcb('Congreso internacional (tipos 7 / 29)',[7],1)}</div>`+
+ `<div class="card"><h2>Qué falta</h2><p><b>${nSub}</b> actividades sin subir a SIGMA (${fmt(hSub)} HEF) · <b>${nProp}</b> subidas pendientes de validar.</p><p class="hint">Las HEF no son horas reales: son horas equivalentes de formación según la normativa.</p></div>`;}
+renderTabla();
+</script></body></html>

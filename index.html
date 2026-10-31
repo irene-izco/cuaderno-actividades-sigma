@@ -74,13 +74,13 @@ th{background:var(--ac);color:#fff;font-weight:600;font-size:12.5px}tr:nth-child
   <div class="drop" id="drop">Arrastra aquí el PDF del justificante o <label style="display:inline;color:var(--ac);cursor:pointer;text-decoration:underline">elígelo<input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg" class="hide"></label>
   <div class="hint" id="fstat">Se lee en tu navegador; el archivo no se envía a ningún sitio.</div></div>
   <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">¿El PDF es una imagen o no se lee? Pega aquí el texto del justificante</summary><textarea id="pasted" placeholder="Texto del justificante (opcional)"></textarea><button class="b s sm" id="usePasted" style="margin-top:6px">Usar este texto</button></details>
+  <div class="sec" style="margin-top:18px"><span class="t">O CUÉNTALO CON TUS PALABRAS (OPCIONAL)</span><textarea id="libre" style="min-height:64px" placeholder="Por ejemplo: He asistido a un curso organizado por la Universidad de Sevilla, en Sevilla, el 27 de noviembre de 2024. Dura 8 horas."></textarea><p style="margin:6px 0 0"><button type="button" class="b s sm" id="mic">🎤 Dictar</button> <button type="button" class="b s sm" id="interp">Interpretar texto</button> <span id="micmsg" class="hint">Sirve si no tienes justificante o si el documento no se lee entero. Lo que escribas o dictes completa o corrige los campos, y se aplica solo al terminar de escribir. Puedes hacerlo antes o después de subir el documento.</span></p></div>
   <div id="detmsg" class="hint" style="margin-top:8px"></div></div>
  <div class="card"><h2>2 · Datos de la actividad</h2>
   <label>Tipo de documento</label>
   <select id="tipo"><option value="">— elige —</option><option value="congreso">Congreso (asistencia / presentación / publicación)</option><option value="curso">Curso o taller</option><option value="conferencia">Conferencia, seminario o mesa redonda (asistencia)</option><option value="jornada">Jornada doctoral</option><option value="seminario">Seminario</option><option value="estancia">Estancia de investigación</option><option value="pub">Contribución de la tesis publicada (artículo, capítulo, actas…)</option><option value="docente">Colaboración docente</option><option value="edona">Actividad EDONA / Íberus / G-9 / divulgación (catálogo)</option><option value="otra">Otra actividad no prevista en la lista (punto 9)</option></select>
   <div id="campos"></div>
   <div id="preguntas"></div>
-  <div class="sec" style="margin-top:16px"><span class="t">EXPLICACIÓN ADICIONAL (OPCIONAL)</span><textarea id="libre" style="min-height:64px" placeholder="Por ejemplo: He asistido a un curso organizado por la Universidad de Sevilla, en Sevilla, el 27 de noviembre de 2024. Dura 8 horas."></textarea><p style="margin:6px 0 0"><button type="button" class="b s sm" id="mic">🎤 Dictar</button> <button type="button" class="b s sm" id="interp">Interpretar texto</button> <span id="micmsg" class="hint">Lo que escribas completa el justificante y, si se contradicen, manda tu texto. Rellena el formulario de arriba, que puedes revisar.</span></p></div>
   <p><button class="b" id="gen">Generar entradas de SIGMA</button></p></div>
  <div id="res"></div>
 </section>
@@ -419,7 +419,7 @@ const {generar,detectarCatalogo,CATALOGO}=module.exports;
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let perfil=LS.get('sigma_perfil',{grupo:'',departamento:''}), acts=LS.get('sigma_acts',[]), cur=null, texto='', fileName='', detHef=null, detCursoDoc=null, detDenom=null, lastDet={}, libreHecho='', lastI=null;
+let perfil=LS.get('sigma_perfil',{grupo:'',departamento:''}), acts=LS.get('sigma_acts',[]), cur=null, texto='', fileName='', detHef=null, detCursoDoc=null, detDenom=null, lastDet={}, libreHecho='', docDet={}, lastAuto={}, lastAutoC={}, lastI=null;
 const hoy=()=>new Date().toISOString().slice(0,10);
 const fmt=n=>String(n).replace('.',',');
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -580,11 +580,11 @@ async function leerPDF(file){
  return out;}
 async function cargar(file){fileName=file.name.replace(/\.[^.]+$/,'');$('#fstat').textContent='Leyendo '+file.name+'…';texto='';
  try{if(/pdf$/i.test(file.name))texto=await leerPDF(file);}catch(e){$('#detmsg').innerHTML='<span style="color:var(--er)">'+esc(e.message)+'</span>'}
- if(texto.trim().length<30){$('#fstat').textContent=file.name;$('#detmsg').innerHTML='<span style="color:var(--wa)">No he podido leer texto del archivo (puede ser una imagen). Elige el tipo de documento y rellena los datos a mano, o pega el texto.</span>';aplicar({})}
- else{$('#fstat').textContent=file.name+' · texto leído';aplicar(detectar(texto))}}
+ if(texto.trim().length<30){$('#fstat').textContent=file.name;docDet={};refresh();$('#detmsg').innerHTML='<span style="color:var(--wa)">No he podido leer texto del archivo (puede ser una imagen). Cuéntalo con tus palabras en el cuadro de abajo, elige el tipo de documento y rellena los datos a mano, o pega el texto.</span>'}
+ else{$('#fstat').textContent=file.name+' · texto leído';docDet=detectar(texto);refresh()}}
 $('#file').onchange=e=>e.target.files[0]&&cargar(e.target.files[0]);
 const dz=$('#drop');dz.ondragover=e=>{e.preventDefault()};dz.ondrop=e=>{e.preventDefault();e.dataTransfer.files[0]&&cargar(e.dataTransfer.files[0])};
-$('#usePasted').onclick=()=>{texto=$('#pasted').value;if(texto.trim())aplicar(detectar(texto))};
+$('#usePasted').onclick=()=>{texto=$('#pasted').value;if(texto.trim()){docDet=detectar(texto);refresh()}};
 // ---------- formulario por tipo ----------
 const F=(id,lab,type='text',ph='')=>`<div><label>${lab}</label><input id="f_${id}" type="${type}" placeholder="${ph}"></div>`;
 const FORM={
@@ -636,6 +636,7 @@ function preguntas(tipo,d={}){
  $('#preguntas').innerHTML=q;}
 $('#tipo').onchange=e=>pintar(e.target.value,{});
 function aplicar(d){lastDet=d;detHef=d.hefDoc!=null?d.hefDoc:null;detCursoDoc=d.cursoDoc||null;detDenom=d.denom||null;$('#tipo').value=d.tipo||'';pintar(d.tipo||'',d);
+ lastAuto={};lastAutoC={};$$('#campos [id^="f_"]').forEach(e=>lastAuto[e.id]=e.value);$$('#campos input[type=checkbox]').forEach(e=>lastAutoC[e.id]=e.checked);
  const msg=[];if(d.tipo)msg.push('Detectado: <b>'+$('#tipo').selectedOptions[0].text+'</b>');if(d.ini)msg.push('fechas '+d.ini+(d.fin&&d.fin!==d.ini?' → '+d.fin:''));if(d.horas)msg.push(d.horas+' h');
  if(msg.length)$('#detmsg').innerHTML=msg.join(' · ')+'. Revisa los datos: todo es editable.';
  else if(texto.trim().length>=30)$('#detmsg').innerHTML='<span style="color:var(--wa)">No he reconocido el tipo de documento. Elígelo en el desplegable.</span>';}
@@ -676,11 +677,27 @@ function construir(i){let R;try{R=i.tipo==='docente'?i.asigs.flatMap(a=>generar(
  propuestas=R.map(r=>{const adj=(r.adjunto||'')||('Justificante '+(i.nombreCorto||i.evento||''));return {...r,incluir:true,_adj:adj,justificante:fileName,dudas:r.dudas.slice()}});
  pintarRes();}
 
-function aplicarLibre(){const t=$('#libre').value.trim();if(!t)return false;const d=detectar(t,{libre:true});const clean={};
- Object.keys(d).forEach(k=>{const x=d[k];if(x===undefined||x===''||x===false||k==='intlHint')return;clean[k]=x});
- const merged=Object.assign({},lastDet,clean);const keep=t;aplicar(merged);$('#libre').value=keep;libreHecho=keep;
- $('#detmsg').innerHTML+=' · <b>Texto interpretado</b>: revisa los campos y contesta las preguntas.';return true}
-$('#interp').onclick=()=>{if(!aplicarLibre())$('#micmsg').textContent='Escribe o dicta algo primero.'};
+function snapshot(){const s={tipo:$('#tipo').value,f:{},r:{},c:{},rows:[]};
+ $$('#campos [id^="f_"]').forEach(e=>{if(e.value!==(lastAuto[e.id]||''))s.f[e.id]=e.value});
+ $$('#preguntas input[type=radio]:checked').forEach(e=>s.r[e.name]=e.value);
+ $$('#campos input[type=checkbox]').forEach(e=>{if(e.checked!==!!lastAutoC[e.id])s.c[e.id]=e.checked});
+ $$('.asrow').forEach(r=>s.rows.push({a:r.querySelector('.a_asig').value,c:r.querySelector('.a_curso').value,i:r.querySelector('.a_idi').value,h:r.querySelector('.a_h').value}));
+ return s}
+function restore(s,merged){if(s.tipo!==$('#tipo').value)return;
+ Object.keys(s.f).forEach(id=>{const e=document.getElementById(id);if(e)e.value=s.f[id]});
+ Object.keys(s.c).forEach(id=>{const e=document.getElementById(id);if(e)e.checked=s.c[id]});
+ Object.keys(s.r).forEach(n=>{const e=document.querySelector('#preguntas input[name="'+n+'"][value="'+s.r[n]+'"]');if(e)e.checked=true});
+ if(s.tipo==='docente'&&!(merged.asigs&&merged.asigs.length)&&s.rows.some(r=>r.a)){s.rows.forEach((r,k)=>{if(k>0)$('#addAsig').click();const row=$$('.asrow')[k];if(!row)return;row.querySelector('.a_asig').value=r.a;row.querySelector('.a_curso').value=r.c;row.querySelector('.a_idi').value=r.i;row.querySelector('.a_h').value=r.h})}}
+// Fusiona lo leído del documento con el texto libre (el texto manda) sin borrar lo que el usuario ya ha escrito o contestado.
+function refresh(){const snap=snapshot();const t=$('#libre').value.trim();const merged=Object.assign({},docDet);
+ if(t){const d=detectar(t,{libre:true});if(d.ini&&d.ini===d.fin&&docDet.ini===d.ini&&docDet.fin)delete d.fin;Object.keys(d).forEach(k=>{const x=d[k];if(x===undefined||x===''||x===false||k==='intlHint')return;merged[k]=x});libreHecho=t}else libreHecho='';
+ if(!merged.tipo&&snap.tipo)merged.tipo=snap.tipo;
+ aplicar(merged);restore(snap,merged);
+ if(t)$('#detmsg').innerHTML+=' · <b>Texto interpretado</b>.';return !!t}
+function aplicarLibre(){return refresh()}
+$('#interp').onclick=()=>{if(!refresh())$('#micmsg').textContent='Escribe o dicta algo primero.'};
+let lastDown=null;document.addEventListener('mousedown',e=>{lastDown=e.target},true);
+$('#libre').addEventListener('change',()=>{if(lastDown&&lastDown.closest&&lastDown.closest('#gen,#interp,#mic,#usePasted'))return;if($('#libre').value.trim()!==libreHecho)refresh()});
 (function(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const mic=$('#mic');
  if(!SR){mic.disabled=true;mic.title='Tu navegador no admite dictado';$('#micmsg').textContent='Tu navegador no admite el dictado por voz (usa Chrome o Edge). Puedes escribir el texto.';return}
  let rec=null,on=false;
@@ -688,9 +705,9 @@ $('#interp').onclick=()=>{if(!aplicarLibre())$('#micmsg').textContent='Escribe o
   rec=new SR();rec.lang='es-ES';rec.interimResults=true;rec.continuous=true;const base=$('#libre').value;let fin='';
   rec.onresult=e=>{let tmp='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript+' ';else tmp+=r[0].transcript}$('#libre').value=(base?base+' ':'')+fin+tmp};
   rec.onerror=e=>{on=false;mic.textContent='🎤 Dictar';$('#micmsg').textContent=e.error==='not-allowed'?'No hay permiso para usar el micrófono. Permítelo en el navegador.':'No se pudo dictar ('+e.error+'). Escribe el texto.'};
-  rec.onend=()=>{on=false;mic.textContent='🎤 Dictar'};
+  rec.onend=()=>{on=false;mic.textContent='🎤 Dictar';if($('#libre').value.trim()!==libreHecho)refresh()};
   try{rec.start();on=true;mic.textContent='⏹ Parar';$('#micmsg').textContent='Escuchando… (el navegador envía el audio a un servicio externo para transcribirlo)'}catch(x){$('#micmsg').textContent='No se pudo iniciar el dictado.'}}})();
-$('#gen').onclick=()=>{const lt=$('#libre').value.trim();if(lt&&lt!==libreHecho){aplicarLibre();$('#res').innerHTML='<div class="warn">He rellenado el formulario con tu texto. Revisa los datos, responde las preguntas y pulsa de nuevo «Generar entradas».</div>';return}
+$('#gen').onclick=()=>{const lt=$('#libre').value.trim();if(lt!==libreHecho)refresh();
  const i=entrada();if(!i){return alert('Elige el tipo de documento.')}
  const m=faltan(i);if(m.length){$('#res').innerHTML='<div class="warn">Antes de generar, falta: '+m.join('; ')+'.</div>';return}
  if(i.tipo==='congreso'&&i.roles.includes('publicacion')){i.tituloPub=v('pt');i.venue=v('pv');i.anio=v('py');i.fechaPub=v('pf');i.indexacion='jcr'}

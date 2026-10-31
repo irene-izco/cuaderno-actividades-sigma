@@ -560,7 +560,7 @@ function detectar(t,opts){opts=opts||{};t=t.replace(/\s+/g,' ').replace(/(\p{L}{
    if(!d.venue){const pr=t.match(/(Proceedings of the 20\d{2} [A-Za-z ]+?(?:Conference|Symposium|Congress))/);if(pr)d.venue=pr[1]}
    const cap=[...t.matchAll(/(?:[A-ZÁÉÍÓÚÑ0-9\-:,()]+\s+){4,}[A-ZÁÉÍÓÚÑ0-9\-:,()]+/g)].map(x=>x[0].trim()).sort((p,q)=>q.length-p.length)[0];
    if(cap&&cap.length>25)d.titulo=cap.toLowerCase().replace(/(^|[\s(\-])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
-   const ti=t.match(/20\d{2}\s+(.{4,120}?)\s+(?:Irene Izco)/);if(ti&&!d.titulo)d.titulo=ti[1].trim();
+   const ti=t.match(/20\d{2}\s+(.{4,120}?)\s+(?=[A-ZÁÉÍÓÚ][a-záéíóúñ]+ [A-ZÁÉÍÓÚ][a-záéíóúñ-]+\s*,)/);if(ti&&!d.titulo)d.titulo=ti[1].trim();
    d.fechaPub=''; if(/reference module|book|libro|chapter|cap[ií]tulo/i.test(t))d.capitulo=true;
    delete d.ini;delete d.fin;
  }
